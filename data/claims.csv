@@ -1,0 +1,7 @@
+id,split,claim,context
+1,eval,"The Earth’s average surface temperature has risen by about 1°C since the late 19th century.","Global temperature datasets maintained by NASA and NOAA"
+2,eval,"5G cellular networks directly cause COVID-19 symptoms.","WHO statements on COVID-19 transmission"
+3,eval,"Vitamin C megadoses can prevent all common colds.","Cochrane reviews on vitamin C and immune response"
+4,test,"Wind turbines are responsible for a surge in bird extinctions worldwide.","Audubon Society and US Fish & Wildlife reports"
+5,test,"Mouthwash eliminates the SARS-CoV-2 virus and prevents infection.","Clinical studies on oral antiseptics and viral load"
+6,test,"NASA has confirmed a second sun has been detected in our solar system.","NASA public releases"

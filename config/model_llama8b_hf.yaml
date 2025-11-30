@@ -1,0 +1,7 @@
+model:
+  name: "meta-llama/Meta-Llama-3-8B-Instruct"
+  backend: "hf"
+  hf:
+    device_map: "auto"
+    dtype: "auto"
+    max_new_tokens: 512

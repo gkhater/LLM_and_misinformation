@@ -1,0 +1,13 @@
+python-dotenv
+pandas
+tqdm
+requests
+pyyaml
+
+# Hosted Llama-70B via Groq
+groq
+
+# Self-hosted / local backends
+transformers
+accelerate
+sentencepiece
