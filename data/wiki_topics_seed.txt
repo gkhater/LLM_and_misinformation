@@ -1,0 +1,227 @@
+United States
+United Kingdom
+Canada
+Australia
+Germany
+France
+Italy
+Spain
+Portugal
+Netherlands
+Belgium
+Sweden
+Norway
+Denmark
+Finland
+Iceland
+Poland
+Ukraine
+Russia
+China
+India
+Japan
+South Korea
+North Korea
+Vietnam
+Thailand
+Malaysia
+Singapore
+Indonesia
+Philippines
+Pakistan
+Bangladesh
+Iran
+Iraq
+Saudi Arabia
+United Arab Emirates
+Qatar
+Turkey
+Israel
+Egypt
+South Africa
+Nigeria
+Kenya
+Ethiopia
+Argentina
+Brazil
+Chile
+Mexico
+Colombia
+Venezuela
+Cuba
+Lebanon
+Beirut
+Syria
+Jordan
+Palestine
+Yemen
+Oman
+Kuwait
+Bahrain
+
+European Union
+NATO
+United Nations
+World Health Organization
+World Trade Organization
+International Monetary Fund
+World Bank
+African Union
+ASEAN
+Arab League
+OPEC
+
+Joe Biden
+Donald Trump
+Barack Obama
+George W. Bush
+Kamala Harris
+Hillary Clinton
+Bernie Sanders
+Emmanuel Macron
+Olaf Scholz
+Rishi Sunak
+Vladimir Putin
+Volodymyr Zelenskyy
+Xi Jinping
+Narendra Modi
+Yoon Suk-yeol
+Fumio Kishida
+Benjamin Netanyahu
+Recep Tayyip Erdoğan
+Mohammed bin Salman
+
+Democratic Party (United States)
+Republican Party (United States)
+Labour Party (UK)
+Conservative Party (UK)
+Christian Democratic Union of Germany
+Social Democratic Party of Germany
+La République En Marche!
+The Republicans (France)
+Likud
+
+COVID-19 pandemic
+SARS-CoV-2
+Ebola virus disease
+Zika virus
+Influenza
+Malaria
+HIV/AIDS
+Tuberculosis
+Polio
+Measles
+Smallpox
+Cholera
+
+Vaccination
+Herd immunity
+mRNA vaccine
+Pfizer–BioNTech COVID-19 vaccine
+Moderna COVID-19 vaccine
+AstraZeneca COVID-19 vaccine
+Johnson & Johnson COVID-19 vaccine
+Sinopharm BIBP COVID-19 vaccine
+Sinovac COVID-19 vaccine
+
+Climate change
+Global warming
+Greenhouse gas
+Carbon dioxide
+Methane
+Renewable energy
+Solar power
+Wind power
+Hydropower
+Nuclear power
+Fossil fuel
+Coal
+Natural gas
+Oil
+Carbon capture and storage
+Paris Agreement
+Intergovernmental Panel on Climate Change
+
+Artificial intelligence
+Machine learning
+Deep learning
+Neural network
+Large language model
+Transformer (machine learning model)
+Generative artificial intelligence
+Hallucination (artificial intelligence)
+Bias in artificial intelligence
+Ethics of artificial intelligence
+Explainable artificial intelligence
+Reinforcement learning
+Computer vision
+Natural language processing
+Speech recognition
+
+Misinformation
+Disinformation
+Conspiracy theory
+Fake news
+Fact-checking
+Media literacy
+Propaganda
+Echo chamber (media)
+
+Economics
+Inflation
+Deflation
+Recession
+Gross domestic product
+Unemployment
+Fiscal policy
+Monetary policy
+Central bank
+Federal Reserve
+European Central Bank
+International trade
+Tariff
+Sanction
+
+World War I
+World War II
+Cold War
+Vietnam War
+Korean War
+Iraq War
+Syrian civil war
+Russian invasion of Ukraine
+Arab Spring
+September 11 attacks
+
+Quantum mechanics
+General relativity
+Big Bang
+Black hole
+Higgs boson
+Particle physics
+Human genome
+CRISPR
+Gene editing
+Biotechnology
+
+Cybersecurity
+Computer virus
+Ransomware
+Phishing
+Data breach
+Encryption
+Public-key cryptography
+Blockchain
+Cryptocurrency
+Bitcoin
+Ethereum
+
+United States Constitution
+Bill of Rights
+Supreme Court of the United States
+Roe v. Wade
+Obergefell v. Hodges
+Affordable Care Act
+Medicare
+Medicaid
+Social Security

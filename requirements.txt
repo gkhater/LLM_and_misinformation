@@ -11,3 +11,8 @@ groq
 transformers
 accelerate
 sentencepiece
+
+# Metrics and similarity
+sentence-transformers
+rank-bm25
+wikipedia-api

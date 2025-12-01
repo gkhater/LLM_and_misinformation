@@ -8,3 +8,6 @@ outputs/
 .DS_Store
 Thumbs.db
 *.log
+data/raw/
+data/tmp/
+*.ipynb

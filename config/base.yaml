@@ -15,3 +15,23 @@ generation:
   max_tokens: 512
   top_p: 1.0
   repetition_penalty: 1.0
+
+metrics:
+  fact_precision:
+    enabled: false
+    nli_model_name: "ynie/roberta-large-snli_mnli_fever_anli_R1"  # requires download
+    max_evidence: 3
+    entail_threshold: 0.5
+    contradict_threshold: 0.5
+    margin: 0.1
+    retrieval:
+      backend: "context_only"  # options: context_only (default), local_bm25 (requires TSV corpus)
+      top_k: 3
+      corpus_path: null  # e.g., data/wiki_passages.tsv (id<TAB>text)
+      min_score: 0.0
+  self_consistency:
+    enabled: false
+    samples: 3
+    temperature: 0.3
+    embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+    nli_model: null  # optional; set to same NLI as fact_precision if you want contradiction counting

@@ -9,9 +9,19 @@ from src.prompts import MISINFO_SYSTEM_PROMPT, build_user_payload
 class HFLlamaClassifier(BaseClassifier):
     backend = "hf"
 
-    def __init__(self, model_name, device_map="auto", dtype="auto", max_new_tokens=512):
+    def __init__(
+        self,
+        model_name,
+        device_map="auto",
+        dtype="auto",
+        max_new_tokens=512,
+        temperature: float = 0.0,
+        top_p: float = 1.0,
+    ):
         self.model_name = model_name
         self.max_new_tokens = max_new_tokens
+        self.temperature = temperature
+        self.top_p = top_p
 
         self.pipe = pipeline(
             "text-generation",
@@ -21,7 +31,7 @@ class HFLlamaClassifier(BaseClassifier):
             torch_dtype=dtype,
         )
 
-    def classify(self, claim, context=None):
+    def classify(self, claim, context=None, **gen_kwargs):
         payload = build_user_payload(claim, context)
         prompt = (
             MISINFO_SYSTEM_PROMPT
@@ -30,12 +40,17 @@ class HFLlamaClassifier(BaseClassifier):
             + "\n\nAssistant JSON output:\n"
         )
 
+        temperature = gen_kwargs.get("temperature", self.temperature)
+        top_p = gen_kwargs.get("top_p", self.top_p)
+        do_sample = temperature > 0
+
         t0 = time.time()
         out = self.pipe(
             prompt,
             max_new_tokens=self.max_new_tokens,
-            do_sample=False,
-            temperature=0.0,
+            do_sample=do_sample,
+            temperature=temperature,
+            top_p=top_p,
         )[0]["generated_text"]
         latency = (time.time() - t0) * 1000
 

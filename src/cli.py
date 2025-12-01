@@ -21,12 +21,29 @@ def build_classifier(config):
     m = config["model"]
     backend = m["backend"]
     name = m["name"]
+    gen = config.get("generation", {})
+    temperature = gen.get("temperature", 0.0)
+    top_p = gen.get("top_p", 1.0)
+    max_tokens = gen.get("max_tokens", 512)
 
     if backend == "groq":
-        return GroqLlamaClassifier(name, m["groq"]["api_key_env"])
+        return GroqLlamaClassifier(
+            name,
+            m["groq"]["api_key_env"],
+            temperature=temperature,
+            top_p=top_p,
+            max_tokens=max_tokens,
+        )
     if backend == "vllm":
         v = m["vllm"]
-        return VLLMLlamaClassifier(name, v["base_url"], v.get("api_key", ""))
+        return VLLMLlamaClassifier(
+            name,
+            v["base_url"],
+            v.get("api_key", ""),
+            temperature=temperature,
+            top_p=top_p,
+            max_tokens=max_tokens,
+        )
     if backend == "hf":
         h = m["hf"]
         return HFLlamaClassifier(
@@ -34,6 +51,8 @@ def build_classifier(config):
             h.get("device_map", "auto"),
             h.get("dtype", "auto"),
             h.get("max_new_tokens", 512),
+            temperature=temperature,
+            top_p=top_p,
         )
     raise ValueError(f"Unknown backend {backend}")
 
