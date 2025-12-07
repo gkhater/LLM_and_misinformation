@@ -44,7 +44,6 @@ class GroqLlamaClassifier(BaseClassifier):
             temperature=temperature,
             max_tokens=max_tokens,
             top_p=top_p,
-            response_format={"type": "json_object"},
         )
         latency = (time.time() - t0) * 1000
         raw = resp.choices[0].message.content

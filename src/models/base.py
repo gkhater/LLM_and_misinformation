@@ -14,7 +14,7 @@ class BaseClassifier(ABC):
 
 
 def parse_json_output(raw: str) -> Dict:
-    """Best-effort JSON parsing that never raises; returns a safe fallback."""
+    """Best-effort parsing that never raises; returns structured fields with fallbacks."""
     import json
     import re
 
@@ -40,28 +40,74 @@ def parse_json_output(raw: str) -> Dict:
             return brace_block.group(0)
         return None
 
-    candidate = _extract_candidate(safe_raw.strip())
-    if not candidate:
-        return fallback
+    stripped = safe_raw.strip()
+    def _heuristic_parse(text: str) -> Dict:
+        lower = text.lower()
 
-    try:
-        obj = json.loads(candidate)
-    except Exception as exc:  # broad on purpose to never raise to caller
-        return fallback
+        # Label from explicit prefix or by presence of tokens.
+        lbl = None
+        label_match = re.search(r"label\s*[:=-]\s*([a-zA-Z]+)", text, re.IGNORECASE)
+        if label_match:
+            lbl = label_match.group(1).lower()
+        else:
+            for cand in ("accurate", "misleading", "false", "unknown"):
+                if re.search(rf"\b{cand}\b", lower):
+                    lbl = cand
+                    break
+        if lbl not in {"accurate", "misleading", "false", "unknown"}:
+            lbl = "unknown"
 
-    label = str(obj.get("label", "")).lower().strip()
-    if label not in {"accurate", "misleading", "false", "unknown"}:
-        label = "unknown"
-
-    try:
-        conf_val = float(obj.get("confidence", 0.0))
-    except Exception:
+        # Confidence from explicit prefix or first float in range 0..1.
         conf_val = 0.0
+        conf_match = re.search(r"confidence\s*[:=-]\s*([01](?:\.\d+)?)", text, re.IGNORECASE)
+        if conf_match:
+            try:
+                conf_val = float(conf_match.group(1))
+            except Exception:
+                conf_val = 0.0
+        else:
+            num_match = re.search(r"\b([01](?:\.\d+)?)\b", text)
+            if num_match:
+                try:
+                    conf_val = float(num_match.group(1))
+                except Exception:
+                    conf_val = 0.0
 
-    rationale = str(obj.get("rationale", "")).strip()
+        # Rationale from explicit prefix or the whole text.
+        rationale = text
+        rat_match = re.search(r"rationale\s*[:=-]\s*(.+)", text, re.IGNORECASE | re.DOTALL)
+        if rat_match:
+            rationale = rat_match.group(1).strip()
 
-    return {
-        "label": label,
-        "confidence": _clamp_conf(conf_val),
-        "rationale": rationale,
-    }
+        return {
+            "label": lbl,
+            "confidence": _clamp_conf(conf_val),
+            "rationale": rationale if rationale else text,
+        }
+
+    candidate = _extract_candidate(stripped)
+    if candidate:
+        try:
+            obj = json.loads(candidate)
+            label = str(obj.get("label", "")).lower().strip()
+            if label not in {"accurate", "misleading", "false", "unknown"}:
+                label = "unknown"
+            try:
+                conf_val = float(obj.get("confidence", 0.0))
+            except Exception:
+                conf_val = 0.0
+            rationale = str(obj.get("rationale", "")).strip()
+            return {
+                "label": label,
+                "confidence": _clamp_conf(conf_val),
+                "rationale": rationale if rationale else stripped,
+            }
+        except Exception:
+            # Fall through to heuristic if JSON parsing fails.
+            pass
+
+    # Heuristic fallback if JSON not usable.
+    parsed = _heuristic_parse(stripped or safe_raw)
+    if not parsed.get("rationale"):
+        parsed["rationale"] = stripped or safe_raw
+    return parsed

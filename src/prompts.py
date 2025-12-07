@@ -7,10 +7,10 @@ Given a claim (and optionally some context), you must decide if the claim is:
 - "false": contradicted by reliable evidence.
 - "unknown": not enough evidence.
 
-Return ONLY a JSON object with keys:
-- "label": ["accurate", "misleading", "false", "unknown"]
-- "confidence": float in [0,1]
-- "rationale": 2-4 sentences.
+Respond with three lines (no extra text):
+label: <accurate|misleading|false|unknown>
+confidence: <0..1>
+rationale: <2-4 sentences>
 """
 
 
