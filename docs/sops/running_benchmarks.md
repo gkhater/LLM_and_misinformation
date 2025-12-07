@@ -6,7 +6,7 @@
 ```
 
 2) **Pick backend config**
-- Groq 70B hosted: `config/model_llama70b_groq.yaml`
+- Groq 70B hosted (`llama3-3-70b-versatile`): `config/model_llama70b_groq.yaml`
 - Self-hosted vLLM: `config/model_llama8b_vllm.yaml`
 - Local HF pipeline: `config/model_llama8b_hf.yaml`
 

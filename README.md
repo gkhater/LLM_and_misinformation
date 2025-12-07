@@ -20,7 +20,7 @@ pip install -r requirements.txt
 
 4) **Run a backend**
 ```powershell
-# Groq 70B (hosted)
+# Groq 70B (hosted, llama3-3-70b-versatile)
 python -m src.cli --model-config config/model_llama70b_groq.yaml
 
 # Self-hosted vLLM endpoint

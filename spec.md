@@ -124,7 +124,7 @@ generation:
 
 ```yaml
 model:
-  name: "llama3-70b-8192"
+  name: "llama3-3-70b-versatile"
   backend: "groq"
   groq:
     api_key_env: "GROQ_API_KEY"
