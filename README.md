@@ -76,6 +76,34 @@ Outputs land in `outputs/` as JSONL; filenames encode backend/model.
   - `outputs/` and `logs/` are gitignored by default; keep them untracked.
   - `metrics/*.docx` are user-provided; keep or ignore per repo size policy.
 
+## Using LIAR as the dataset
+If you want to run the pipeline on the LIAR fact-checking dataset:
+1. Download the LIAR splits (`liar_train.tsv`, `liar_valid.tsv`, `liar_test.tsv`) into `data/` from the official release (e.g., https://people.cs.pitt.edu/~zou/Projects/LIAR.html).
+2. Convert to our schema (`id,split,claim,context`):
+   ```powershell
+   python scripts/parse_liar.py --train data/liar_train.tsv --valid data/liar_valid.tsv --test data/liar_test.tsv --out data/claims_liar.csv
+   ```
+   This writes `data/claims_liar.csv` with contiguous ids and splits preserved.
+3. Create a model config (copy an existing one) and override the dataset block, e.g.:
+   ```yaml
+   model:
+     name: "llama-3.1-8b-instant"
+     backend: "groq"
+     groq:
+       api_key_env: "GROQ_API_KEY"
+   dataset:
+     csv_path: "data/claims_liar.csv"
+     id_column: "id"
+     claim_column: "claim"
+     context_column: "context"
+     split_column: "split"
+     split_filter: "test"  # or null for all splits
+   ```
+4. Run as usual, pointing to that model config:
+   ```powershell
+   python -m src.cli --model-config config/model_llama8b_groq_liar.yaml --max-rows 5
+   ```
+
 ## NLI threshold calibration (optional but recommended)
 - Prepare a small CSV dev set with `claim,evidence,label` where label ∈ {support, refute, unknown}.
 - Run:

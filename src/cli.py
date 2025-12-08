@@ -9,11 +9,15 @@ from src.models.llama_hf import HFLlamaClassifier
 
 
 def load_config(base_path, model_path):
+    """Load base + model configs; allow model config to override dataset block."""
     with open(base_path, "r", encoding="utf-8") as f:
         base = yaml.safe_load(f)
     with open(model_path, "r", encoding="utf-8") as f:
         model = yaml.safe_load(f)
     base["model"] = model["model"]
+    # Optional dataset override inside model config for dataset swaps without CLI flags.
+    if "dataset" in model:
+        base["dataset"] = {**base.get("dataset", {}), **model["dataset"]}
     return base
 
 
@@ -71,6 +75,7 @@ def main():
     args = parser.parse_args()
 
     config = load_config(args.base_config, args.model_config)
+
     classifier = build_classifier(config)
 
     out_path = run_model_on_dataset(config, classifier, max_rows=args.max_rows)
