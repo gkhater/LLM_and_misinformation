@@ -99,14 +99,23 @@ class FactPrecisionEvaluator:
         if key in self._cache:
             return self._cache[key]
 
-        pred = self._clf(
+        raw = self._clf(
             {
                 "text": evidence,
                 "text_pair": claim,
             }
         )
+
+        # Allow both list and dict outputs (HF pipeline normally returns a list).
+        if isinstance(raw, list):
+            pred = raw[0] if raw else {}
+        elif isinstance(raw, dict):
+            pred = raw
+        else:
+            pred = {}
+
         # Expect labels like ENTAILMENT / CONTRADICTION / NEUTRAL
-        label = pred["label"].upper()
+        label = str(pred.get("label", "")).upper()
         score = pred.get("score", 0.0)
 
         if "ENTAIL" in label and score >= self.entail_threshold:
