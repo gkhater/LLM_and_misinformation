@@ -104,7 +104,7 @@ class FactPrecisionEvaluator:
                 "text": evidence,
                 "text_pair": claim,
             }
-        )[0]
+        )
         # Expect labels like ENTAILMENT / CONTRADICTION / NEUTRAL
         label = pred["label"].upper()
         score = pred.get("score", 0.0)
