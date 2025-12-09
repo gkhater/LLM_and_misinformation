@@ -75,7 +75,7 @@ def run_model_on_dataset(config: dict, classifier, max_rows: int | None = None) 
 
         fact_eval = FactPrecisionEvaluator(
             nli_model_name=fact_cfg.get(
-                "nli_model_name", "ynie/roberta-large-snli_mnli_fever_anli_R1"
+                "nli_model_name", "ynie/roberta-large-snli_mnli_fever_anli_R1_R2_R3-nli"
             ),
             max_evidence=fact_cfg.get("max_evidence", 3),
             entail_threshold=fact_cfg.get("entail_threshold", 0.5),

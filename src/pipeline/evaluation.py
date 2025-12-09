@@ -274,22 +274,24 @@ def _fact_precision(cache_entry: dict, entail_t: float, contr_t: float) -> dict:
     }
 
 
-def _claim_verification(cache_entry: dict, entail_t: float, contr_t: float) -> dict:
-    verdicts = []
+def _claim_verification(cache_entry: dict, entail_t: float, contr_t: float, margin: float) -> dict:
+    max_entail = 0.0
+    max_contra = 0.0
     for ev in cache_entry.get("evidence", []):
-        verdicts.append(_classify(ev.get("nli_claim", {}), entail_t, contr_t))
+        scores = ev.get("nli_claim", {})
+        max_entail = max(max_entail, scores.get("entail", 0.0))
+        max_contra = max(max_contra, scores.get("contradict", 0.0))
 
-    if "entail" in verdicts:
+    verdict = "nei"
+    if max_entail >= entail_t and max_entail >= max_contra + margin:
         verdict = "entail"
-    elif "contradict" in verdicts:
+    elif max_contra >= contr_t and max_contra >= max_entail + margin:
         verdict = "contradict"
-    else:
-        verdict = "nei"
 
-    return {"verdict": verdict, "evidence_count": len(verdicts)}
+    return {"verdict": verdict, "evidence_count": len(cache_entry.get("evidence", []))}
 
 
-def _label_consistency(cache_entry: dict, label_cfg: dict, entail_t: float, contr_t: float) -> dict:
+def _label_consistency(cache_entry: dict, label_cfg: dict, entail_t: float, contr_t: float, margin: float) -> dict:
     label_val = (cache_entry.get("label") or "").lower().strip()
     true_set = {l.lower() for l in label_cfg.get("true_labels", [])}
     false_set = {l.lower() for l in label_cfg.get("false_labels", [])}
@@ -304,18 +306,20 @@ def _label_consistency(cache_entry: dict, label_cfg: dict, entail_t: float, cont
     else:
         target = 0
 
-    has_entail = has_contra = False
+    max_entail = 0.0
+    max_contra = 0.0
     for ev in cache_entry.get("evidence", []):
-        verdict = _classify(ev.get("nli_claim", {}), entail_t, contr_t)
-        if verdict == "entail":
-            has_entail = True
-        elif verdict == "contradict":
-            has_contra = True
+        scores = ev.get("nli_claim", {})
+        max_entail = max(max_entail, scores.get("entail", 0.0))
+        max_contra = max(max_contra, scores.get("contradict", 0.0))
 
-    if has_entail and not has_contra:
+    has_entail = max_entail >= entail_t
+    has_contra = max_contra >= contr_t
+
+    if has_entail and (max_entail >= max_contra + margin):
         pred = 1
         verdict = "supported"
-    elif has_contra and not has_entail:
+    elif has_contra and (max_contra >= max_entail + margin):
         pred = -1
         verdict = "refuted"
     elif has_entail and has_contra:
@@ -356,6 +360,7 @@ def run_evaluation(eval_config_path: str, max_rows: Optional[int] = None) -> str
 
     entail_t = cfg["nli"].get("entail_threshold", 0.35)
     contr_t = cfg["nli"].get("contradict_threshold", 0.35)
+    margin = cfg["nli"].get("margin", 0.05)
 
     out_path = cfg["output_jsonl"]
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
@@ -370,7 +375,7 @@ def run_evaluation(eval_config_path: str, max_rows: Optional[int] = None) -> str
                 metrics["fact_precision"] = _fact_precision(cache_entry, entail_t, contr_t)
 
             if cfg["metrics"].get("claim_verification", {}).get("enabled", False):
-                metrics["claim_verification"] = _claim_verification(cache_entry, entail_t, contr_t)
+                metrics["claim_verification"] = _claim_verification(cache_entry, entail_t, contr_t, margin)
 
             if cfg["metrics"].get("label_consistency", {}).get("enabled", False):
                 metrics["label_consistency"] = _label_consistency(
@@ -378,6 +383,7 @@ def run_evaluation(eval_config_path: str, max_rows: Optional[int] = None) -> str
                     cfg["metrics"]["label_consistency"],
                     entail_t,
                     contr_t,
+                    margin,
                 )
 
             out_record = dict(row)

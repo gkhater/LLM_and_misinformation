@@ -15,6 +15,7 @@ nli:
   entail_threshold: 0.35
   contradict_threshold: 0.35
   batch_size: 32
+  margin: 0.05
 
 metrics:
   fact_precision:

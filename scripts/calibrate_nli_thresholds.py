@@ -5,7 +5,7 @@ Input CSV columns:
   claim, evidence, label   # label in {support, refute, unknown}
 
 Usage:
-  python scripts/calibrate_nli_thresholds.py --dev dev_labels.csv --model ynie/roberta-large-snli_mnli_fever_anli_R1
+  python scripts/calibrate_nli_thresholds.py --dev dev_labels.csv --model ynie/roberta-large-snli_mnli_fever_anli_R1_R2_R3-nli
 
 This runs a small grid over entail/contradict thresholds and reports macro accuracy.
 """

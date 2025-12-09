@@ -5,6 +5,7 @@
 - Introduced shared retrieval + NLI cache (batched, optional two-stage NLI) so fact_precision, claim_verification, and label_consistency consume the same evidence/scores.
 - Added eval config (`config/eval_liar.yaml`) and SOP/README updates describing the two-phase flow.
 - Extended BM25 retriever with `fetch_with_ids` for evidence provenance in the cache.
+- Tightened aggregation for claim-level metrics: now use max entail vs max contradict with a small margin to reduce spurious “mixed” verdicts; margin configurable in eval config.
 
 ## Files touched
 - Core: `src/cli.py`, `src/pipeline/generation.py`, `src/pipeline/evaluation.py`, `src/retrieval.py`

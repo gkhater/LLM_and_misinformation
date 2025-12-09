@@ -118,7 +118,7 @@ If you want to run the pipeline on the LIAR fact-checking dataset:
 - Prepare a small CSV dev set with `claim,evidence,label` where label ∈ {support, refute, unknown}.
 - Run:
   ```powershell
-  python scripts/calibrate_nli_thresholds.py --dev dev_labels.csv --model ynie/roberta-large-snli_mnli_fever_anli_R1
+  python scripts/calibrate_nli_thresholds.py --dev dev_labels.csv --model ynie/roberta-large-snli_mnli_fever_anli_R1_R2_R3-nli
   ```
 - Update `config/base.yaml` `entail_threshold` / `contradict_threshold` with the tuned values.
 
