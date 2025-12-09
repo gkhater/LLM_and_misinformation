@@ -5,6 +5,7 @@ dataset:
   context_column: "context"
   split_column: "split"
   split_filter: "eval"  # choose which split to run; set to null to use all
+  label_column: null    # optional; set to "label" for LIAR
 
 output:
   dir: "outputs"
@@ -19,19 +20,47 @@ generation:
 metrics:
   fact_precision:
     enabled: true
-    nli_model_name: "ynie/roberta-large-snli_mnli_fever_anli_R1_R2_R3-nli"  # requires download
+    nli_model_name: "MoritzLaurer/deberta-v3-base-mnli-fever-anli"  # public, smaller
     max_evidence: 3
-    entail_threshold: 0.5
-    contradict_threshold: 0.5
+    entail_threshold: 0.30
+    contradict_threshold: 0.30
     margin: 0.1
     retrieval:
       backend: "local_bm25"  # options: context_only (default), local_bm25 (requires TSV corpus)
-      top_k: 3
-      corpus_path: "data/wiki_passages.tsv"
-      min_score: 0.0
+      top_k: 10
+      corpus_path: "data/liar_passages.tsv"
+      min_score: -1.0
+      query_source: "claim"  # claim | rationale
   self_consistency:
     enabled: true
     samples: 3
     temperature: 0.3
     embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
     nli_model: null  # optional; set to same NLI as fact_precision if you want contradiction counting
+  claim_verification:
+    enabled: true  # optional: verifies dataset claim vs evidence; not the LLM rationale
+    nli_model_name: "MoritzLaurer/deberta-v3-base-mnli-fever-anli"
+    entail_threshold: 0.35
+    contradict_threshold: 0.35
+    max_evidence: 5
+    retrieval:
+      backend: "local_bm25"
+      corpus_path: "data/liar_passages.tsv"
+      top_k: 15
+      min_score: -1.0
+      query_source: "claim"
+  label_consistency:
+    enabled: true  # label-aware check (uses dataset label if present)
+    label_column: "label"
+    true_labels: ["true", "mostly-true", "mostly true"]
+    false_labels: ["false", "pants-fire", "pants on fire", "pants-fire!", "pants on-fire"]
+    mixed_labels: ["half-true", "barely-true", "half true", "barely true"]
+    entail_threshold: 0.35
+    contradict_threshold: 0.35
+    max_evidence: 5
+    retrieval:
+      backend: "local_bm25"
+      corpus_path: "data/liar_passages.tsv"
+      top_k: 15
+      min_score: -1.0
+      query_source: "claim"

@@ -1,0 +1,28 @@
+input_jsonl: "outputs/gen_results_groq_llama-3_1-8b-instant_test_20251209T200912.jsonl"  # path to generation-only output
+output_jsonl: "outputs/liar_eval.jsonl"
+
+retrieval:
+  backend: "local_bm25"
+  corpus_path: "data/liar_passages.tsv"
+  top_k: 10
+  min_score: -1.0
+
+nli:
+  cache_path: "outputs/liar_nli_cache.jsonl"
+  fast_model_name: "typeform/distilbert-base-uncased-mnli"
+  refine_model_name: null
+  refine_threshold: 0.30
+  entail_threshold: 0.35
+  contradict_threshold: 0.35
+  batch_size: 32
+
+metrics:
+  fact_precision:
+    enabled: true
+  claim_verification:
+    enabled: true
+  label_consistency:
+    enabled: true
+    true_labels: ["true", "mostly-true", "mostly true"]
+    false_labels: ["false", "pants-fire", "pants on fire", "pants-fire!", "pants on-fire"]
+    mixed_labels: ["half-true", "barely-true", "half true", "barely true"]

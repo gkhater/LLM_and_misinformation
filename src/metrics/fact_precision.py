@@ -70,6 +70,7 @@ class FactPrecisionEvaluator:
         contradict_threshold: float = 0.5,
         margin: float = 0.1,
         device: Optional[str] = None,
+        query_source: str = "rationale",  # "rationale" (default) or "claim"
     ):
         self.nli_model_name = nli_model_name
         self.retriever = retriever or _default_retriever
@@ -80,6 +81,7 @@ class FactPrecisionEvaluator:
         self.margin = margin
         self._clf = None  # lazy-loaded pipeline
         self._cache: dict[Tuple[str, str], str] = {}
+        self.query_source = query_source.lower()
 
     def _load_classifier(self):
         if self._clf is None:
@@ -91,6 +93,7 @@ class FactPrecisionEvaluator:
                 tokenizer=self.nli_model_name,
                 device_map=self.device or "auto",
                 return_all_scores=False,
+                framework="pt",
             )
         return self._clf
 
@@ -98,6 +101,9 @@ class FactPrecisionEvaluator:
         key = (claim, evidence)
         if key in self._cache:
             return self._cache[key]
+
+        # Ensure classifier is loaded
+        clf = self._load_classifier()
 
         raw = self._clf(
             {
@@ -132,6 +138,7 @@ class FactPrecisionEvaluator:
         self,
         model_output_text: str,
         claim_context: Optional[str] = None,
+        claim_text: Optional[str] = None,
     ) -> FactPrecisionResult:
         sentences = _split_sentences(model_output_text)
         if not sentences:
@@ -141,8 +148,15 @@ class FactPrecisionEvaluator:
 
         supported = refuted = nei = unsupported = 0
 
+        shared_evidence: List[str] = []
+        if self.query_source == "claim" and claim_text:
+            shared_evidence = list(self.retriever(claim_text, claim_context))[: self.max_evidence]
+
         for sent in sentences:
-            evidence_candidates = list(self.retriever(sent, claim_context))[: self.max_evidence]
+            if shared_evidence:
+                evidence_candidates = shared_evidence
+            else:
+                evidence_candidates = list(self.retriever(sent, claim_context))[: self.max_evidence]
 
             if not evidence_candidates:
                 unsupported += 1

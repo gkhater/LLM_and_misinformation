@@ -1,0 +1,15 @@
+model:
+  name: "llama-3.1-8b-instant"
+  backend: "groq"
+  groq:
+    api_key_env: "GROQ_API_KEY"
+
+# Override dataset to point to LIAR after conversion with scripts/parse_liar.py
+dataset:
+  csv_path: "data/claims_liar.csv"
+  id_column: "id"
+  claim_column: "claim"
+  context_column: "context"
+  split_column: "split"
+  split_filter: "test"  # change to train/valid/null as needed
+  label_column: "label"

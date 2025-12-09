@@ -1,3 +1,7 @@
+import os
+os.environ.setdefault("TRANSFORMERS_NO_TF", "1")
+os.environ.setdefault("USE_TF", "0")
+
 import argparse
 import yaml
 from dotenv import load_dotenv
@@ -6,6 +10,8 @@ from src.runner import run_model_on_dataset
 from src.models.llama_groq import GroqLlamaClassifier
 from src.models.llama_vllm import VLLMLlamaClassifier
 from src.models.llama_hf import HFLlamaClassifier
+from src.pipeline.generation import run_generation
+from src.pipeline.evaluation import run_evaluation
 
 
 def load_config(base_path, model_path):
@@ -65,20 +71,36 @@ def main():
     load_dotenv()
 
     parser = argparse.ArgumentParser(description="Run misinformation benchmark.")
+    parser.add_argument("--mode", choices=["generation", "evaluation", "legacy"], default="generation")
     parser.add_argument("--base-config", default="config/base.yaml")
     parser.add_argument(
         "--model-config",
         default="config/model_llama70b_groq.yaml",
-        help="Per-backend model config. Defaults to Groq 70B.",
+        help="Per-backend model config (generation/legacy). Defaults to Groq 70B.",
+    )
+    parser.add_argument(
+        "--eval-config",
+        default=None,
+        help="Evaluation config (used when --mode evaluation).",
     )
     parser.add_argument("--max-rows", type=int, default=None, help="Optional cap for quick smoke tests.")
     args = parser.parse_args()
+
+    if args.mode == "evaluation":
+        if not args.eval_config:
+            parser.error("--eval-config is required when mode=evaluation")
+        out_path = run_evaluation(args.eval_config, max_rows=args.max_rows)
+        print(f"Evaluation saved to: {out_path}")
+        return
 
     config = load_config(args.base_config, args.model_config)
 
     classifier = build_classifier(config)
 
-    out_path = run_model_on_dataset(config, classifier, max_rows=args.max_rows)
+    if args.mode == "legacy":
+        out_path = run_model_on_dataset(config, classifier, max_rows=args.max_rows)
+    else:
+        out_path = run_generation(config, classifier, max_rows=args.max_rows)
     print(f"Results saved to: {out_path}")
 
 

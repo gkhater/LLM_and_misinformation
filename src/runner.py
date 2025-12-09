@@ -41,19 +41,37 @@ def run_model_on_dataset(config: dict, classifier, max_rows: int | None = None) 
     id_col = config["dataset"].get("id_column", "id")
     claim_col = config["dataset"].get("claim_column", "claim")
     context_col = config["dataset"].get("context_column", "context")
+    label_col = config["dataset"].get("label_column")
 
     metrics_cfg = config.get("metrics", {})
 
     fact_cfg = metrics_cfg.get("fact_precision", {}) if metrics_cfg else {}
     fact_enabled = fact_cfg.get("enabled", False)
+    claim_verif_cfg = metrics_cfg.get("claim_verification", {}) if metrics_cfg else {}
+    claim_verif_enabled = claim_verif_cfg.get("enabled", False)
+    label_consistency_cfg = metrics_cfg.get("label_consistency", {}) if metrics_cfg else {}
+    label_consistency_enabled = label_consistency_cfg.get("enabled", False)
+
+    # Build retrievers for fact precision and claim verification (can share configs).
+    fact_retrieval_cfg = fact_cfg.get("retrieval", {}) if fact_cfg else {}
+    fact_retriever = build_retriever(fact_retrieval_cfg)
+    fact_retrieval_top_k = fact_retrieval_cfg.get("top_k", 3)
+
+    claim_retrieval_cfg = claim_verif_cfg.get("retrieval", {}) if claim_verif_cfg else {}
+    if not claim_retrieval_cfg:
+        claim_retrieval_cfg = fact_retrieval_cfg
+    claim_retriever = build_retriever(claim_retrieval_cfg)
+    claim_retrieval_top_k = claim_retrieval_cfg.get("top_k", fact_retrieval_top_k)
+
+    def fact_fetch(q, c):
+        return fact_retriever.fetch(q, c, top_k=fact_retrieval_top_k)
+
+    def claim_fetch(q, c):
+        return claim_retriever.fetch(q, c, top_k=claim_retrieval_top_k)
+
     fact_eval = None
     if fact_enabled:
-        retrieval_cfg = fact_cfg.get("retrieval", {})
-        retriever_backend = build_retriever(retrieval_cfg)
-        retrieval_top_k = retrieval_cfg.get("top_k", 3)
-
-        def fetch_fn(q, c):
-            return retriever_backend.fetch(q, c, top_k=retrieval_top_k)
+        query_source = fact_retrieval_cfg.get("query_source", "rationale")
 
         fact_eval = FactPrecisionEvaluator(
             nli_model_name=fact_cfg.get(
@@ -63,7 +81,8 @@ def run_model_on_dataset(config: dict, classifier, max_rows: int | None = None) 
             entail_threshold=fact_cfg.get("entail_threshold", 0.5),
             contradict_threshold=fact_cfg.get("contradict_threshold", 0.5),
             margin=fact_cfg.get("margin", 0.1),
-            retriever=fetch_fn,
+            retriever=fact_fetch,
+            query_source=query_source,
         )
 
     sc_cfg = metrics_cfg.get("self_consistency", {}) if metrics_cfg else {}
@@ -85,13 +104,18 @@ def run_model_on_dataset(config: dict, classifier, max_rows: int | None = None) 
             ctx = row[context_col] if context_col and context_col in df.columns else None
             item_id = row[id_col]
             split_val = row[config["dataset"]["split_column"]] if config["dataset"].get("split_column") and config["dataset"]["split_column"] in df.columns else None
+            label_val = row[label_col] if label_col and label_col in df.columns else None
 
             out = classifier.classify(str(claim), ctx if isinstance(ctx, str) else None)
 
             metrics = {}
 
             if fact_eval:
-                fp = fact_eval.evaluate(out.get("raw_output", ""), ctx if isinstance(ctx, str) else None)
+                fp = fact_eval.evaluate(
+                    out.get("raw_output", ""),
+                    ctx if isinstance(ctx, str) else None,
+                    claim_text=str(claim),
+                )
                 metrics["fact_precision"] = {
                     "fact_precision": fp.fact_precision,
                     "supported": fp.supported,
@@ -100,6 +124,121 @@ def run_model_on_dataset(config: dict, classifier, max_rows: int | None = None) 
                     "unsupported": fp.unsupported,
                     "refute_rate": fp.refute_rate,
                     "coverage": fp.coverage,
+                }
+
+            if claim_verif_enabled:
+                # Lightweight dataset-claim verification (claim vs evidence, independent of LLM rationale).
+                nli_model_name = claim_verif_cfg.get(
+                    "nli_model_name",
+                    fact_cfg.get("nli_model_name", "ynie/roberta-large-snli_mnli_fever_anli_R1"),
+                )
+                entail_t = claim_verif_cfg.get(
+                    "entail_threshold", fact_cfg.get("entail_threshold", 0.5)
+                )
+                contradict_t = claim_verif_cfg.get(
+                    "contradict_threshold", fact_cfg.get("contradict_threshold", 0.5)
+                )
+                max_ev = claim_verif_cfg.get("max_evidence", fact_cfg.get("max_evidence", 3))
+
+                # Separate evaluator for claim verification to allow distinct retrieval.
+                labeler = FactPrecisionEvaluator(
+                    nli_model_name=nli_model_name,
+                    max_evidence=max_ev,
+                    entail_threshold=entail_t,
+                    contradict_threshold=contradict_t,
+                    retriever=claim_fetch,
+                    query_source="claim",
+                )
+
+                evidence_candidates = list(
+                    claim_fetch(str(claim), ctx if isinstance(ctx, str) else None)
+                )[:max_ev]
+                verdict_for_claim = "unsupported" if not evidence_candidates else "nei"
+                for ev in evidence_candidates:
+                    v = labeler._label(str(claim), ev)  # uses cached model if available
+                    if v == "supported":
+                        verdict_for_claim = "supported"
+                        break
+                    if v == "refuted":
+                        verdict_for_claim = "refuted"
+                metrics["claim_verification"] = {
+                    "verdict": verdict_for_claim,
+                    "evidence_count": len(evidence_candidates),
+                }
+
+            # Label-aware consistency metric: uses dataset label if present.
+            if label_consistency_enabled and label_val is not None and isinstance(label_val, str):
+                lc_true = {l.lower() for l in label_consistency_cfg.get("true_labels", [])}
+                lc_false = {l.lower() for l in label_consistency_cfg.get("false_labels", [])}
+                lc_mixed = {l.lower() for l in label_consistency_cfg.get("mixed_labels", [])}
+                ent_t = label_consistency_cfg.get(
+                    "entail_threshold", fact_cfg.get("entail_threshold", 0.4)
+                )
+                contra_t = label_consistency_cfg.get(
+                    "contradict_threshold", fact_cfg.get("contradict_threshold", 0.4)
+                )
+                max_ev = label_consistency_cfg.get("max_evidence", fact_cfg.get("max_evidence", 5))
+
+                lv = label_val.lower().strip()
+                if lv in lc_true:
+                    target_polarity = 1
+                elif lv in lc_false:
+                    target_polarity = -1
+                elif lv in lc_mixed:
+                    target_polarity = 0
+                else:
+                    target_polarity = 0
+
+                lc_eval = FactPrecisionEvaluator(
+                    nli_model_name=label_consistency_cfg.get(
+                        "nli_model_name",
+                        fact_cfg.get("nli_model_name", "MoritzLaurer/deberta-v3-base-mnli-fever-anli"),
+                    ),
+                    max_evidence=max_ev,
+                    entail_threshold=ent_t,
+                    contradict_threshold=contra_t,
+                    retriever=claim_fetch,
+                    query_source="claim",
+                )
+
+                evidence_candidates = list(
+                    claim_fetch(str(claim), ctx if isinstance(ctx, str) else None)
+                )[:max_ev]
+                has_entail = False
+                has_contra = False
+                for ev in evidence_candidates:
+                    v = lc_eval._label(str(claim), ev)
+                    if v == "supported":
+                        has_entail = True
+                    if v == "refuted":
+                        has_contra = True
+
+                if has_entail and not has_contra:
+                    predicted_polarity = 1
+                    lc_verdict = "entailed"
+                elif has_contra and not has_entail:
+                    predicted_polarity = -1
+                    lc_verdict = "contradicted"
+                elif has_entail and has_contra:
+                    predicted_polarity = 0
+                    lc_verdict = "mixed"
+                else:
+                    predicted_polarity = 0
+                    lc_verdict = "nei"
+
+                success = target_polarity != 0 and predicted_polarity == target_polarity
+                coverage = has_entail or has_contra
+
+                metrics["label_consistency"] = {
+                    "label": lv,
+                    "target_polarity": target_polarity,
+                    "predicted_polarity": predicted_polarity,
+                    "has_entail": has_entail,
+                    "has_contradiction": has_contra,
+                    "coverage": coverage,
+                    "success": success,
+                    "verdict": lc_verdict,
+                    "evidence_count": len(evidence_candidates),
                 }
 
             if sc_eval:

@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import os
 import re
+import sys
 from typing import Iterable, List, Optional
 
 from rank_bm25 import BM25Okapi
@@ -43,6 +44,7 @@ class LocalBM25Retrieval(RetrievalBackend):
         self.lowercase = lowercase
         self.min_score = min_score
         self._docs: List[str] = []
+        self._ids: List[str] = []
         self._tokenized: List[List[str]] = []
         self._load_corpus()
         self._bm25 = BM25Okapi(self._tokenized)
@@ -53,14 +55,21 @@ class LocalBM25Retrieval(RetrievalBackend):
         return re.findall(r"\b\w+\b", text)
 
     def _load_corpus(self) -> None:
+        # Allow large text fields.
+        try:
+            csv.field_size_limit(sys.maxsize)
+        except (OverflowError, ValueError):
+            csv.field_size_limit(10_000_000)
         with open(self.tsv_path, "r", encoding="utf-8", newline="") as f:
             reader = csv.reader(f, delimiter=self.delimiter)
             for row in reader:
                 if len(row) <= self.text_col:
                     continue
+                doc_id = row[0].strip() if row[0].strip() else str(len(self._docs))
                 text = row[self.text_col].strip()
                 if not text:
                     continue
+                self._ids.append(doc_id)
                 self._docs.append(text)
                 self._tokenized.append(self._tokenize(text))
 
@@ -75,6 +84,18 @@ class LocalBM25Retrieval(RetrievalBackend):
         ]
         top_idxs = [i for i, _ in sorted(candidates, key=lambda x: x[1], reverse=True)[:top_k]]
         return [self._docs[i] for i in top_idxs]
+
+    def fetch_with_ids(self, query: str, context: Optional[str] = None, top_k: int = 3) -> List[tuple]:
+        """Return (doc_id, text) pairs; falls back to positional ids if missing."""
+        if not query.strip():
+            return []
+        tokens = self._tokenize(query)
+        scores = self._bm25.get_scores(tokens)
+        candidates = [
+            (i, scores[i]) for i in range(len(scores)) if scores[i] >= self.min_score
+        ]
+        top_idxs = [i for i, _ in sorted(candidates, key=lambda x: x[1], reverse=True)[:top_k]]
+        return [(self._ids[i] if i < len(self._ids) else str(i), self._docs[i]) for i in top_idxs]
 
 
 def build_retriever(cfg: dict) -> RetrievalBackend:

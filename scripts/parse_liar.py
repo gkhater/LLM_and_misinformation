@@ -41,6 +41,7 @@ def load_split(path: Path, split_name: str) -> pd.DataFrame:
             "split": split_name,
             "claim": df["statement"],
             "context": df["context"].fillna(""),
+            "label": df["label"].str.lower().str.strip(),
         }
     )
     return out

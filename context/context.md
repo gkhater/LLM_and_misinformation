@@ -23,6 +23,9 @@
 - Claim extraction: currently sentence-split + heuristic filters; consider stronger filtering or a claim extractor for research-grade use.
 - Corpus coverage: expand or domain-focus the corpus if evaluation topics go beyond the current seed list.
 - Metric docs: finalize formal definitions in README/decision (equations already added in brief).
+- Retrieval/metrics updates: Fact Precision now supports claim-level retrieval (`query_source: claim` in config) to share evidence across rationale sentences; optional `claim_verification` and `label_consistency` metrics check dataset claims vs evidence separately from model rationales.
+- LIAR support: added `scripts/build_liar_topics.py` to derive topics from claims; built a larger LIAR-focused BM25 corpus (`data/liar_passages.tsv`, ~3.5k passages) and set it as the default corpus in `config/base.yaml` with claim-level retrieval (top_k=12, min_score=-1, max_evidence=5). Default NLI is now `MoritzLaurer/deberta-v3-base-mnli-fever-anli` (public).
+- New workflow: generation-only phase produces JSONL; offline evaluation reuses shared retrieval + NLI cache with consistent thresholds to avoid re-querying Groq for metric tweaks.
 
 ## Suggested commit message (once scope agreed)
 - “Add modular metrics, BM25 retrieval, and wiki corpus tooling for misinformation benchmarking”
