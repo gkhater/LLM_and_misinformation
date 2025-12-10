@@ -1,0 +1,9 @@
+model:
+  name: "google/flan-t5-small"
+  backend: "hf"
+  hf:
+    device_map: "auto"
+    dtype: "auto"
+    max_new_tokens: 128
+
+# Uses defaults from config/base.yaml for dataset/generation/gating

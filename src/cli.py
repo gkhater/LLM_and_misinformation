@@ -84,12 +84,15 @@ def main():
         help="Evaluation config (used when --mode evaluation).",
     )
     parser.add_argument("--max-rows", type=int, default=None, help="Optional cap for quick smoke tests.")
+    parser.add_argument("--smoke", action="store_true", help="Smoke mode for evaluation: health checks only.")
+    parser.add_argument("--debug-ids", default=None, help="Comma-separated claim ids to inspect during evaluation.")
     args = parser.parse_args()
 
     if args.mode == "evaluation":
         if not args.eval_config:
             parser.error("--eval-config is required when mode=evaluation")
-        out_path = run_evaluation(args.eval_config, max_rows=args.max_rows)
+        debug_ids = [int(x) for x in args.debug_ids.split(",")] if args.debug_ids else None
+        out_path = run_evaluation(args.eval_config, max_rows=args.max_rows, smoke=args.smoke, debug_ids=debug_ids)
         print(f"Evaluation saved to: {out_path}")
         return
 

@@ -110,21 +110,37 @@ def run_model_on_dataset(config: dict, classifier, max_rows: int | None = None) 
 
             metrics = {}
 
-            if fact_eval:
-                fp = fact_eval.evaluate(
-                    out.get("raw_output", ""),
-                    ctx if isinstance(ctx, str) else None,
-                    claim_text=str(claim),
-                )
-                metrics["fact_precision"] = {
-                    "fact_precision": fp.fact_precision,
-                    "supported": fp.supported,
-                    "refuted": fp.refuted,
-                    "nei": fp.nei,
-                    "unsupported": fp.unsupported,
-                    "refute_rate": fp.refute_rate,
-                    "coverage": fp.coverage,
-                }
+            gating_cfg = config.get("gating", {})
+            skip_unknown = gating_cfg.get("skip_fact_precision_if_label_unknown", False)
+            require_ok = gating_cfg.get("require_output_ok_for_fact_precision", False)
+            min_conf = gating_cfg.get("min_confidence_for_fact_precision", 0.0)
+            disallow_context_fact = gating_cfg.get("disallow_fact_precision_on_context_only", False)
+            fact_backend_context = (fact_retrieval_cfg.get("backend") or "").lower() in ("context_only", "context")
+
+            if fact_eval and fact_enabled:
+                if disallow_context_fact and fact_backend_context:
+                    metrics["fact_precision"] = {"status": "skipped_context_only"}
+                elif require_ok and not out.get("quality", {}).get("output_ok", False):
+                    metrics["fact_precision"] = {"status": "skipped_low_quality_output"}
+                elif skip_unknown and out.get("label") == "unknown":
+                    metrics["fact_precision"] = {"status": "skipped_unknown_label"}
+                elif out.get("confidence", 0.0) < min_conf:
+                    metrics["fact_precision"] = {"status": "skipped_low_confidence"}
+                else:
+                    fp = fact_eval.evaluate(
+                        out.get("raw_output", ""),
+                        ctx if isinstance(ctx, str) else None,
+                        claim_text=str(claim),
+                    )
+                    metrics["fact_precision"] = {
+                        "fact_precision": fp.fact_precision,
+                        "supported": fp.supported,
+                        "refuted": fp.refuted,
+                        "nei": fp.nei,
+                        "unsupported": fp.unsupported,
+                        "refute_rate": fp.refute_rate,
+                        "coverage": fp.coverage,
+                    }
 
             if claim_verif_enabled:
                 # Lightweight dataset-claim verification (claim vs evidence, independent of LLM rationale).

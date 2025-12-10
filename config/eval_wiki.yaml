@@ -1,0 +1,46 @@
+input_jsonl: "outputs/gen_results_groq_llama-3.1-8b-instant_eval_20251209T211606.jsonl"  # set to your generation file
+output_jsonl: "outputs/wiki_eval.jsonl"
+
+retrieval:
+  backend: "local_bm25"
+  corpus_path: "data/wiki_seeded_passages.tsv"
+  cache_path: "data/wiki_seeded_bm25.pkl"
+  top_k: 50
+  min_score: -1.0
+  post_filter:
+    min_overlap: 0.20
+    max_hits: 20
+    require_keyword: true
+    numeric_time_gate: true
+  rerank:
+    enabled: true
+    model_name: "sentence-transformers/all-MiniLM-L6-v2"
+    final_k: 5
+    doc_cache_path: "data/wiki_seeded_emb_cache_docs.json"
+    claim_cache_path: "data/wiki_seeded_emb_cache_claims.json"
+    dedup_threshold: 0.95
+
+nli:
+  cache_path: "outputs/wiki_nli_cache.jsonl"
+  fast_model_name: "typeform/distilbert-base-uncased-mnli"
+  refine_model_name: "MoritzLaurer/deberta-v3-base-mnli-fever-anli"
+  refine_threshold: 0.55
+  refine_top_k: 2
+  entail_threshold: 0.35
+  contradict_threshold: 0.35
+  batch_size: 32
+  margin: 0.07
+
+metrics:
+  fact_precision:
+    enabled: true
+  claim_verification:
+    enabled: true
+  label_consistency:
+    enabled: false
+
+gating:
+  require_output_ok_for_fact_precision: true
+  skip_fact_precision_if_label_unknown: true
+  min_confidence_for_fact_precision: 0.3
+  disallow_fact_precision_on_context_only: false

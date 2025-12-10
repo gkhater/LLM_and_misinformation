@@ -1,0 +1,9 @@
+model:
+  name: "sshleifer/tiny-gpt2"
+  backend: "hf"
+  hf:
+    device_map: "auto"
+    dtype: "auto"
+    max_new_tokens: 64
+
+# Uses dataset/generation defaults from config/base.yaml

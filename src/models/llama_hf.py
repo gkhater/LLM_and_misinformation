@@ -23,13 +23,16 @@ class HFLlamaClassifier(BaseClassifier):
         self.temperature = temperature
         self.top_p = top_p
 
+        task = "text2text-generation" if "t5" in model_name.lower() else "text-generation"
+
         self.pipe = pipeline(
-            "text-generation",
+            task,
             model=model_name,
             tokenizer=model_name,
             device_map=device_map,
             torch_dtype=dtype,
         )
+        self._is_seq2seq = task == "text2text-generation"
 
     def classify(self, claim, context=None, **gen_kwargs):
         payload = build_user_payload(claim, context)
@@ -45,19 +48,23 @@ class HFLlamaClassifier(BaseClassifier):
         do_sample = temperature > 0
 
         t0 = time.time()
-        out = self.pipe(
+        result = self.pipe(
             prompt,
             max_new_tokens=self.max_new_tokens,
             do_sample=do_sample,
             temperature=temperature,
             top_p=top_p,
-        )[0]["generated_text"]
+        )[0]
+        if self._is_seq2seq:
+            out_text = result.get("generated_text") or result.get("text") or ""
+        else:
+            out_text = result.get("generated_text") or result.get("text") or ""
         latency = (time.time() - t0) * 1000
 
-        if out.startswith(prompt):
-            raw = out[len(prompt) :].strip()
+        if out_text.startswith(prompt):
+            raw = out_text[len(prompt) :].strip()
         else:
-            raw = out.strip()
+            raw = out_text.strip()
 
         parsed = parse_json_output(raw)
         parsed.update(

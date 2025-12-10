@@ -1,0 +1,37 @@
+{
+  "claims_hash": "71bbc3d0de968ff074d830017331b6d8b0b300c5",
+  "params": {
+    "claims": "data\\claims_liar.csv",
+    "out": "data\\wiki_seeded_passages.tsv",
+    "max_claims_for_corpus": 3,
+    "seed": null,
+    "chunk_size": 160,
+    "overlap": 20,
+    "sleep": 0.1,
+    "resume": true,
+    "timeout": 5.0,
+    "retries": 2,
+    "backoff": 0.5,
+    "user_agent": "llm-misinfo-benchmark/0.1 (contact: you@example.com)",
+    "max_seeds_per_claim": 2,
+    "search_limit": 1,
+    "max_pages_per_seed": 1
+  },
+  "timestamp": 1765362167.2822409,
+  "pages_fetched": 6,
+  "corpus_hash": "fee05f97ef33a528160515d343ce6349b4050f99",
+  "titles_by_claim": {
+    "0": [
+      "Pregnancy",
+      "Pistol Annies"
+    ],
+    "1": [
+      "Started",
+      "George W. Bush"
+    ],
+    "2": [
+      "Hillary and Clinton",
+      "George H. W. Bush"
+    ]
+  }
+}

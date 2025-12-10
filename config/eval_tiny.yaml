@@ -1,0 +1,33 @@
+input_jsonl: "outputs/gen_results_hf_sshleifer_tiny-gpt2_eval_20251210T092925.jsonl"
+output_jsonl: "outputs/eval_tiny.jsonl"
+
+retrieval:
+  backend: "context_only"
+  top_k: 1
+  min_score: 0.0
+
+nli:
+  cache_path: "outputs/eval_tiny_cache.jsonl"
+  fast_model_name: "typeform/distilbert-base-uncased-mnli"
+  refine_model_name: null
+  refine_threshold: 0.5
+  refine_top_k: 0
+  entail_threshold: 0.5
+  contradict_threshold: 0.5
+  batch_size: 8
+  margin: 0.05
+
+metrics:
+  fact_precision:
+    enabled: true
+  claim_verification:
+    enabled: false
+  label_consistency:
+    enabled: false
+
+gating:
+  require_output_ok_for_fact_precision: true
+  skip_fact_precision_if_label_unknown: true
+  min_confidence_for_fact_precision: 0.3
+  disallow_fact_precision_on_context_only: true
+  smoke_mode: true

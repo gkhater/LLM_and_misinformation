@@ -7,8 +7,18 @@ import os
 import re
 import sys
 from typing import Iterable, List, Optional
+import hashlib
+import pickle
 
 from rank_bm25 import BM25Okapi
+
+
+def _file_sha1(path: str) -> str:
+    h = hashlib.sha1()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
 
 class RetrievalBackend:
@@ -35,6 +45,7 @@ class LocalBM25Retrieval(RetrievalBackend):
         delimiter: str = "\t",
         lowercase: bool = True,
         min_score: float = 0.0,
+        cache_path: Optional[str] = None,
     ):
         if not os.path.exists(tsv_path):
             raise FileNotFoundError(f"BM25 corpus not found at {tsv_path}")
@@ -46,6 +57,9 @@ class LocalBM25Retrieval(RetrievalBackend):
         self._docs: List[str] = []
         self._ids: List[str] = []
         self._tokenized: List[List[str]] = []
+        self.cache_path = cache_path
+        self._corpus_hash = _file_sha1(tsv_path)
+        self._corpus_size = 0
         self._load_corpus()
         self._bm25 = BM25Okapi(self._tokenized)
 
@@ -55,6 +69,20 @@ class LocalBM25Retrieval(RetrievalBackend):
         return re.findall(r"\b\w+\b", text)
 
     def _load_corpus(self) -> None:
+        # Attempt to load cached tokenization to speed startup.
+        if self.cache_path and os.path.exists(self.cache_path):
+            try:
+                with open(self.cache_path, "rb") as fh:
+                    payload = pickle.load(fh)
+                meta = payload.get("meta", {})
+                if meta.get("corpus_hash") == self._corpus_hash and meta.get("text_col") == self.text_col:
+                    self._ids = payload["ids"]
+                    self._docs = payload["docs"]
+                    self._tokenized = payload["tokenized"]
+                    return
+            except Exception:
+                pass
+
         # Allow large text fields.
         try:
             csv.field_size_limit(sys.maxsize)
@@ -72,6 +100,28 @@ class LocalBM25Retrieval(RetrievalBackend):
                 self._ids.append(doc_id)
                 self._docs.append(text)
                 self._tokenized.append(self._tokenize(text))
+        self._corpus_size = len(self._docs)
+
+        if self.cache_path:
+            try:
+                with open(self.cache_path, "wb") as fh:
+                    pickle.dump(
+                        {
+                            "meta": {
+                                "corpus_hash": self._corpus_hash,
+                                "text_col": self.text_col,
+                                "delimiter": self.delimiter,
+                                "lowercase": self.lowercase,
+                            },
+                            "ids": self._ids,
+                            "docs": self._docs,
+                            "tokenized": self._tokenized,
+                        },
+                        fh,
+                    )
+            except Exception:
+                # Best-effort caching; ignore failures.
+                pass
 
     def fetch(self, query: str, context: Optional[str] = None, top_k: int = 3) -> List[str]:
         if not query.strip():
@@ -97,6 +147,13 @@ class LocalBM25Retrieval(RetrievalBackend):
         top_idxs = [i for i, _ in sorted(candidates, key=lambda x: x[1], reverse=True)[:top_k]]
         return [(self._ids[i] if i < len(self._ids) else str(i), self._docs[i]) for i in top_idxs]
 
+    def corpus_meta(self) -> dict:
+        return {
+            "path": self.tsv_path,
+            "hash": self._corpus_hash,
+            "size": self._corpus_size,
+        }
+
 
 def build_retriever(cfg: dict) -> RetrievalBackend:
     backend = (cfg.get("backend") or "none").lower()
@@ -107,5 +164,6 @@ def build_retriever(cfg: dict) -> RetrievalBackend:
         if not path:
             raise RuntimeError("BM25 backend requires 'corpus_path' (TSV with id<TAB>text).")
         min_score = cfg.get("min_score", 0.0)
-        return LocalBM25Retrieval(path, min_score=min_score)
+        cache_path = cfg.get("cache_path")
+        return LocalBM25Retrieval(path, min_score=min_score, cache_path=cache_path)
     raise ValueError(f"Unknown retrieval backend: {backend}")

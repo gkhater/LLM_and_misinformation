@@ -1,0 +1,46 @@
+input_claims_csv: "data/claims_liar.csv"
+input_split: null
+max_rows: 5
+
+retrieval:
+  backend: "local_bm25"
+  corpus_path: "data/wiki_seeded_passages.tsv"
+  top_k: 50
+  post_filter:
+    min_overlap: 0.0
+    max_hits: 20
+    require_keyword: false
+    numeric_time_gate: false
+  rerank:
+    enabled: false
+    final_k: 5
+
+nli:
+  cache_path: "outputs/wiki_smoke_nli_cache_v3.jsonl"
+  fast_model_name: "typeform/distilbert-base-uncased-mnli"
+  refine_model_name: null
+  refine_threshold: 0.55
+  refine_top_k: 0
+  entail_threshold: 0.35
+  contradict_threshold: 0.35
+  batch_size: 32
+  margin: 0.07
+
+metrics:
+  fact_precision:
+    enabled: false
+  claim_verification:
+    enabled: true
+  label_consistency:
+    enabled: true
+    true_labels: ["true", "mostly-true", "mostly true", "half-true", "half true"]
+    false_labels: ["false", "pants-fire", "pants on fire", "pants-fire!", "pants on-fire", "barely-true", "barely true"]
+    mixed_labels: ["half-true", "half true", "barely-true", "barely true"]
+
+gating:
+  require_output_ok_for_fact_precision: true
+  skip_fact_precision_if_label_unknown: true
+  min_confidence_for_fact_precision: 0.3
+  disallow_fact_precision_on_context_only: false
+
+output_jsonl: "outputs/wiki_smoke_eval.jsonl"
