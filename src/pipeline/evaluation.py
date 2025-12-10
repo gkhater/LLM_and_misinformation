@@ -41,6 +41,55 @@ def _extract_keywords(claim: str) -> set[str]:
     return {t for t in toks if len(t) >= 4}
 
 
+def extract_query_tokens(claim: str) -> dict:
+    """Build a small set of tokens for gating/veto."""
+    domain_words = {
+        "coal",
+        "gas",
+        "abortion",
+        "mandate",
+        "reform",
+        "iran",
+        "vote",
+        "border",
+        "wall",
+        "layoffs",
+        "veterans",
+        "mccain",
+        "clinton",
+        "bush",
+    }
+    toks = _tokenize(claim)
+    keywords = []
+    for t in toks:
+        if len(t) >= 4 and t not in domain_words:
+            keywords.append(t)
+    keywords.extend([w for w in toks if w in domain_words])
+
+    entities_cap = []
+    for tok in re.findall(r"[A-Z][A-Za-z0-9]+", claim):
+        if len(tok) >= 3:
+            entities_cap.append(tok.lower())
+
+    must_match_any = []
+    for t in entities_cap:
+        if t not in must_match_any:
+            must_match_any.append(t)
+        if len(must_match_any) >= 12:
+            break
+    for t in keywords:
+        if t not in must_match_any:
+            must_match_any.append(t)
+        if len(must_match_any) >= 12:
+            break
+
+    return {
+        "entities_cap": entities_cap[:12],
+        "keywords": keywords[:12],
+        "must_match_any": must_match_any[:12],
+    }
+
+
 def _batched(seq: list, batch_size: int) -> Iterable[list]:
     for i in range(0, len(seq), batch_size):
         yield seq[i : i + batch_size]
@@ -224,17 +273,13 @@ def _post_filter_hits(
     fallback_delta: float = 0.05,
 ) -> Tuple[List[tuple], bool, dict]:
     if not hits:
-        return [], False, {"entity_tokens": [], "entity_veto_kept": 0, "entity_veto_fallback": False}
+        return [], False, {"entity_tokens": [], "entity_veto_kept": 0, "entity_veto_fallback": False, "entity_veto_trigger": None}
     keywords = _extract_keywords(claim_text)
     numeric_tokens = {"year", "years", "month", "months", "week", "weeks", "day", "days", "double", "increase", "decrease", "more", "less", "percent", "percentage"}
     claim_has_number = any(ch.isdigit() for ch in claim_text)
     claim_has_numeric_token = claim_has_number or any(tok in _tokenize(claim_text) for tok in numeric_tokens)
-    ent_tokens = []
-    for tok in re.findall(r"[A-Z][A-Za-z0-9]+", claim_text):
-        if len(tok) >= 3:
-            ent_tokens.append(tok.lower())
-        if len(ent_tokens) >= 8:
-            break
+    q_tokens = extract_query_tokens(claim_text)
+    ent_tokens = q_tokens.get("must_match_any", [])
     scored = []
     for h in hits:
         doc_id, text = h
@@ -253,9 +298,9 @@ def _post_filter_hits(
     scored.sort(key=lambda x: x[0], reverse=True)
     filtered = [h for _, h in scored[:max_hits]] if scored else []
     veto_fallback = False
-    if len(filtered) >= final_k or not filtered:
-        return filtered, False, {"entity_tokens": ent_tokens, "entity_veto_kept": len(filtered), "entity_veto_fallback": False}
-    if len(filtered) < final_k and not filtered and ent_tokens:
+    if len(filtered) >= final_k:
+        return filtered, False, {"entity_tokens": ent_tokens, "entity_veto_kept": len(filtered), "entity_veto_fallback": False, "entity_veto_trigger": "kept>0"}
+    if len(filtered) == 0 and ent_tokens:
         veto_fallback = True
         scored_no_ent = []
         for h in hits:
@@ -270,11 +315,11 @@ def _post_filter_hits(
                 scored_no_ent.append((s, h))
         scored_no_ent.sort(key=lambda x: x[0], reverse=True)
         filtered = [h for _, h in scored_no_ent[:max_hits]] if scored_no_ent else []
-        return filtered, True, {"entity_tokens": ent_tokens, "entity_veto_kept": len(filtered), "entity_veto_fallback": True}
+        return filtered, True, {"entity_tokens": ent_tokens, "entity_veto_kept": len(filtered), "entity_veto_fallback": True, "entity_veto_trigger": "fallback_zero_kept"}
     # Fallback: relax overlap slightly to avoid starving reranker.
     relaxed = [h for score, h in scored if score >= max(0.0, min_overlap - fallback_delta)]
     relaxed = relaxed[:max_hits]
-    return relaxed, True, {"entity_tokens": ent_tokens, "entity_veto_kept": len(relaxed), "entity_veto_fallback": True or veto_fallback}
+    return relaxed, True, {"entity_tokens": ent_tokens, "entity_veto_kept": len(relaxed), "entity_veto_fallback": True or veto_fallback, "entity_veto_trigger": "overlap_relax"}
 
 
 class Reranker:
@@ -699,8 +744,8 @@ def _aggregate_verdict_from_passages(
     max_contra = 0.0
     ent_count = 0
     con_count = 0
-    strong = 0.80
-    strong_margin = 0.15
+    strong = 0.90
+    strong_margin = 0.20
     for ev in cache_entry.get("evidence", []):
         scores = ev.get("nli_claim", {})
         ent = scores.get("entail", 0.0)
@@ -713,24 +758,28 @@ def _aggregate_verdict_from_passages(
             con_count += 1
     rule = "nei"
     verdict = "nei"
-    if max_contra >= strong and max_contra >= max_entail + strong_margin:
-        verdict = "contradict"
-        rule = "strong_contradict"
-    elif max_entail >= strong and max_entail >= max_contra + strong_margin:
-        verdict = "entail"
-        rule = "strong_entail"
-    elif con_count >= 2:
+    strong_used = False
+    if con_count >= 2:
         verdict = "contradict"
         rule = "two_hit_contradict"
     elif ent_count >= 2:
         verdict = "entail"
         rule = "two_hit_entail"
-    elif max_entail >= entail_t and max_entail >= max_contra + margin:
+    elif max_contra >= strong and max_contra >= max_entail + strong_margin:
+        verdict = "contradict"
+        rule = "strong_contradict"
+        strong_used = True
+    elif max_entail >= strong and max_entail >= max_contra + strong_margin:
         verdict = "entail"
-        rule = "margin_entail"
+        rule = "strong_entail"
+        strong_used = True
     elif max_contra >= contr_t and max_contra >= max_entail + margin:
         verdict = "contradict"
         rule = "margin_contradict"
+    elif max_entail >= entail_t and max_entail >= max_contra + margin:
+        verdict = "entail"
+        rule = "margin_entail"
+    max_gap = abs(max_entail - max_contra)
     return {
         "verdict": verdict,
         "max_entail": max_entail,
@@ -739,6 +788,8 @@ def _aggregate_verdict_from_passages(
         "contradict_count": con_count,
         "rule_fired": rule,
         "evidence_count": len(cache_entry.get("evidence", [])),
+        "strong_used": strong_used,
+        "max_gap": max_gap,
     }
 
 
@@ -845,6 +896,12 @@ def _retrieval_stats(claim_text: str, cache_entry: dict) -> dict:
         "top_k_effective": cache_entry.get("top_k_effective"),
         "max_hits_effective": cache_entry.get("max_hits_effective"),
         "final_k_effective": cache_entry.get("final_k_effective"),
+        "query_tokens": cache_entry.get("entity_tokens") or [],
+        "entity_veto_kept": cache_entry.get("entity_veto_kept"),
+        "entity_veto_fallback": cache_entry.get("entity_veto_fallback"),
+        "entity_veto_trigger": cache_entry.get("entity_veto_trigger"),
+        "topic_veto_applied": cache_entry.get("topic_veto_applied", False),
+        "topic_veto_reason": cache_entry.get("topic_veto_reason"),
     }
     return {k: json_safe(v) for k, v in stats.items()}
 
@@ -932,7 +989,28 @@ def run_evaluation(
                         metrics["fact_precision"] = _fact_precision(cache_entry, entail_t, contr_t)
 
                 if cfg["metrics"].get("claim_verification", {}).get("enabled", False):
-                    metrics["claim_verification"] = _claim_verification(cache_entry, entail_t, contr_t, margin)
+                    cv = _claim_verification(cache_entry, entail_t, contr_t, margin)
+                    # Topic veto: require at least one evidence to mention query tokens in title/text
+                    topic_veto = False
+                    topic_reason = None
+                    query_tokens = set(cache_entry.get("entity_tokens") or [])
+                    if query_tokens:
+                        on_topic = False
+                        for ev in cache_entry.get("evidence", []):
+                            text_lower = (ev.get("passage_text") or "").lower()
+                            title_lower = text_lower.split("\n")[0] if "\n" in text_lower else text_lower
+                            if any(tok in text_lower for tok in query_tokens) or any(tok in title_lower for tok in query_tokens):
+                                on_topic = True
+                                break
+                        if not on_topic:
+                            topic_veto = True
+                            topic_reason = "no_title_or_text_token_match"
+                    if topic_veto:
+                        cv["verdict"] = "nei"
+                        cv["rule_fired"] = "topic_veto_nei"
+                    cv["topic_veto_applied"] = topic_veto
+                    cv["topic_veto_reason"] = topic_reason
+                    metrics["claim_verification"] = cv
 
                 if cfg["metrics"].get("label_consistency", {}).get("enabled", False):
                     metrics["label_consistency"] = _label_consistency(
