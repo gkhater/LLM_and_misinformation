@@ -291,83 +291,83 @@ def _post_filter_hits(
     final_k: int,
     fallback_delta: float = 0.05,
 ) -> Tuple[List[tuple], dict]:
-    if not hits:
-        return (
-            [],
-            {
-                "query_tokens_all": [],
-                "entity_tokens": [],
-                "entity_veto_kept": 0,
-                "entity_veto_fallback": False,
-                "entity_veto_trigger": None,
-                "overlap_keyword_fallback": False,
-            },
-        )
+    # Extract signals
     keywords = _extract_keywords(claim_text)
     numeric_tokens = {"year", "years", "month", "months", "week", "weeks", "day", "days", "double", "increase", "decrease", "more", "less", "percent", "percentage"}
     claim_has_number = any(ch.isdigit() for ch in claim_text)
     claim_has_numeric_token = claim_has_number or any(tok in _tokenize(claim_text) for tok in numeric_tokens)
     q_tokens = extract_query_tokens(claim_text)
-    ent_tokens = q_tokens.get("must_match_any", [])
+    query_tokens = q_tokens.get("must_match_any", [])
     meta_base = {
-        "query_tokens_all": ent_tokens,
-        "entity_tokens": ent_tokens,
+        "query_tokens_all": query_tokens,
+        "entity_tokens": query_tokens,
     }
-    scored = []
+
+    if not hits:
+        return (
+            [],
+            {
+                **meta_base,
+                "entity_veto_kept": 0,
+                "entity_veto_fallback": False,
+                "entity_veto_trigger": None,
+                "overlap_keyword_fallback": False,
+                "filter_fallback": "empty_hits",
+            },
+        )
+
+    # Stage A: hard gates (numeric + keyword)
+    gated: List[tuple] = []
     for h in hits:
         doc_id, text = h
         if require_keyword and keywords and not (set(_tokenize(text)) & keywords):
             continue
         if numeric_time_gate and claim_has_numeric_token:
-            # Require passage to contain at least one digit or numeric-ish token.
             if not any(ch.isdigit() for ch in text) and not (set(_tokenize(text)) & numeric_tokens):
                 continue
-        if ent_tokens:
-            if not (set(_tokenize(text)) & set(ent_tokens)):
-                continue
-        s = _overlap_score(claim_text, text)
-        if s >= min_overlap:
-            scored.append((s, h))
+        gated.append(h)
+
+    filter_fallback = "none"
+    if not gated:
+        # Fallback to top BM25 hits (already in ranked order from retriever)
+        fallback_hits = hits[: min(len(hits), max_hits, 10)]
+        return (
+            fallback_hits,
+            {
+                **meta_base,
+                "entity_veto_kept": len(fallback_hits),
+                "entity_veto_fallback": False,
+                "entity_veto_trigger": "bm25_topn",
+                "overlap_keyword_fallback": True,
+                "filter_fallback": "bm25_topn",
+            },
+        )
+
+    # Stage B: soft scoring using query token overlap + title bonus
+    scored: List[Tuple[float, tuple]] = []
+    for h in gated:
+        doc_id, text = h
+        toks = set(_tokenize(text))
+        match_count = len(toks & set(query_tokens)) if query_tokens else 0
+        overlap_frac = match_count / max(1, len(query_tokens))
+        title = text.split("\n", 1)[0].lower()
+        bonus = 0.1 if query_tokens and any(tok in title for tok in query_tokens) else 0.0
+        score = max(overlap_frac, _overlap_score(claim_text, text)) + bonus
+        scored.append((score, h))
+
     scored.sort(key=lambda x: x[0], reverse=True)
     filtered = [h for _, h in scored[:max_hits]] if scored else []
-    if len(filtered) >= final_k:
-        return filtered, {
-            **meta_base,
-            "entity_veto_kept": len(filtered),
-            "entity_veto_fallback": False,
-            "entity_veto_trigger": "kept>0",
-            "overlap_keyword_fallback": False,
-        }
-    if len(filtered) == 0 and ent_tokens:
-        scored_no_ent = []
-        for h in hits:
-            doc_id, text = h
-            if require_keyword and keywords and not (set(_tokenize(text)) & keywords):
-                continue
-            if numeric_time_gate and claim_has_numeric_token:
-                if not any(ch.isdigit() for ch in text) and not (set(_tokenize(text)) & numeric_tokens):
-                    continue
-            s = _overlap_score(claim_text, text)
-            if s >= min_overlap:
-                scored_no_ent.append((s, h))
-        scored_no_ent.sort(key=lambda x: x[0], reverse=True)
-        filtered = [h for _, h in scored_no_ent[:max_hits]] if scored_no_ent else []
-        return filtered, {
-            **meta_base,
-            "entity_veto_kept": len(filtered),
-            "entity_veto_fallback": True,
-            "entity_veto_trigger": "fallback_zero_kept",
-            "overlap_keyword_fallback": False,
-        }
-    # Fallback: relax overlap slightly to avoid starving reranker.
-    relaxed = [h for score, h in scored if score >= max(0.0, min_overlap - fallback_delta)]
-    relaxed = relaxed[:max_hits]
-    return relaxed, {
+    if not filtered:
+        filtered = gated[: min(len(gated), max_hits)]
+        filter_fallback = "gated_head"
+
+    return filtered, {
         **meta_base,
-        "entity_veto_kept": len(relaxed),
-        "entity_veto_fallback": True,
-        "entity_veto_trigger": "overlap_relax",
-        "overlap_keyword_fallback": True,
+        "entity_veto_kept": len(filtered),
+        "entity_veto_fallback": False,
+        "entity_veto_trigger": "kept>0",
+        "overlap_keyword_fallback": filter_fallback != "none",
+        "filter_fallback": filter_fallback,
     }
 
 
@@ -1104,6 +1104,11 @@ def run_evaluation(
                         margin,
                     )
                 metrics["retrieval_stats"] = _retrieval_stats(cache_entry or {})
+                # Keep retrieval stats aligned with topic veto outcome for debugging.
+                if cv:
+                    rs = metrics["retrieval_stats"]
+                    rs["topic_veto_applied"] = cv.get("topic_veto_applied", False)
+                    rs["topic_veto_reason"] = cv.get("topic_veto_reason")
 
             out_record = dict(row)
             out_record["metrics"] = metrics

@@ -7,13 +7,13 @@ retrieval:
   corpus_path: "data/wiki_seeded_passages.tsv"
   top_k: 50
   post_filter:
-    min_overlap: 0.15
+    min_overlap: 0.08
     max_hits: 20
     require_keyword: true
     numeric_time_gate: true
   rerank:
     enabled: false
-    final_k: 3
+    final_k: 5
 
 nli:
   cache_path: "outputs/wiki_smoke_nli_cache_v3.jsonl"

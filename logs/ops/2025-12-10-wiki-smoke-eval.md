@@ -32,3 +32,10 @@
 - Changes: `_post_filter_hits` now returns metadata (`query_tokens`, veto flags), retrieval_stats carried through cache entry, JSON-safe defaults enforced; file re-encoded to UTF-8.
 - Command: `.\.venv\Scripts\python -m src.cli --mode evaluation --eval-config config/eval_wiki_smoke.yaml --max-rows 5 --debug-ids 0,1`.
 - Result: `outputs/wiki_smoke_eval.jsonl` shows populated `query_tokens_all`, entity_veto fields, and corpus metadata. All 5 claims -> `nei` due to entity veto on tiny corpus; no spurious contradictions. Next step: loosen gates or expand corpus to get on-topic evidence.
+
+## 2025-12-10 13:09Z soft filters + fallback smoke
+- Config tweaks: `min_overlap=0.08`, `final_k=5`; post-filter now soft-selects via overlap/title score with BM25 fallback when filtered=0. Topic veto aligned with propagated tokens.
+- Corpus unchanged: `data/wiki_seeded_passages.tsv` (853 passages, hash 1dc8c1ffc73c0a7386beb1983015fe8da29bfe04).
+- Cache rebuilt (old cache removed): `outputs/wiki_smoke_nli_cache_v3.jsonl`.
+- Command: `.\.venv\Scripts\python -m src.cli --mode evaluation --eval-config config/eval_wiki_smoke.yaml --max-rows 5 --debug-ids 0,1`.
+- Outcome: retrieval keeps 2–3 hits per claim (filter_fallback="bm25_topn" on claim 0). Topic veto applies when no token match in title/text, forcing NEI. Contradictions persist where on-topic Bush pages contradict claims. HF downloads retried via proxy; eventually ran on cached model.
