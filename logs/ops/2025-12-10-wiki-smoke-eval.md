@@ -22,3 +22,13 @@
 ## Notes
 - Max-row handling fixed to honor CLI/config `max_rows`.
 - To reduce noisy contradicts, expand corpus beyond 11 passages and/or tighten filter/overlap once retrieval is richer.
+
+---
+
+## 2025-12-10 12:45Z wiring + veto debug
+- Config: `config/eval_wiki_smoke.yaml` (min_overlap=0.15, keyword/numeric gates on, reranker disabled, final_k=3, thresholds 0.45/0.45/margin 0.10, strong 0.90/0.20).
+- Corpus: `data/wiki_seeded_passages.tsv` (size 853, hash 1dc8c1ffc73c0a7386beb1983015fe8da29bfe04).
+- Cache rebuilt: `outputs/wiki_smoke_nli_cache_v3.jsonl` (previous cache removed).
+- Changes: `_post_filter_hits` now returns metadata (`query_tokens`, veto flags), retrieval_stats carried through cache entry, JSON-safe defaults enforced; file re-encoded to UTF-8.
+- Command: `.\.venv\Scripts\python -m src.cli --mode evaluation --eval-config config/eval_wiki_smoke.yaml --max-rows 5 --debug-ids 0,1`.
+- Result: `outputs/wiki_smoke_eval.jsonl` shows populated `query_tokens_all`, entity_veto fields, and corpus metadata. All 5 claims -> `nei` due to entity veto on tiny corpus; no spurious contradictions. Next step: loosen gates or expand corpus to get on-topic evidence.

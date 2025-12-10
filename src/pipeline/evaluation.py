@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import hashlib
+import re
 from typing import Dict, Iterable, List, Optional, Tuple, Set
 
 import yaml
@@ -146,6 +147,24 @@ def json_safe(val):
     return val
 
 
+def mk_base_retrieval_stats(
+    retriever,
+    corpus_hash: Optional[str],
+    top_k: int,
+    max_hits: int,
+    corpus_path: Optional[str] = None,
+    corpus_size: Optional[int] = None,
+) -> dict:
+    return {
+        "corpus_path": str(corpus_path or getattr(retriever, "corpus_path", "") or ""),
+        "corpus_hash": str(corpus_hash or ""),
+        "corpus_size": int(corpus_size or getattr(retriever, "corpus_size", 0) or 0),
+        "top_k_effective": int(top_k),
+        "max_hits_effective": int(max_hits),
+        "final_k_effective": None,
+    }
+
+
 def _load_claims_csv(path: str, split: Optional[str] = None, max_rows: Optional[int] = None) -> List[dict]:
     import pandas as pd
 
@@ -271,15 +290,29 @@ def _post_filter_hits(
     numeric_time_gate: bool,
     final_k: int,
     fallback_delta: float = 0.05,
-) -> Tuple[List[tuple], bool, dict]:
+) -> Tuple[List[tuple], dict]:
     if not hits:
-        return [], False, {"entity_tokens": [], "entity_veto_kept": 0, "entity_veto_fallback": False, "entity_veto_trigger": None}
+        return (
+            [],
+            {
+                "query_tokens_all": [],
+                "entity_tokens": [],
+                "entity_veto_kept": 0,
+                "entity_veto_fallback": False,
+                "entity_veto_trigger": None,
+                "overlap_keyword_fallback": False,
+            },
+        )
     keywords = _extract_keywords(claim_text)
     numeric_tokens = {"year", "years", "month", "months", "week", "weeks", "day", "days", "double", "increase", "decrease", "more", "less", "percent", "percentage"}
     claim_has_number = any(ch.isdigit() for ch in claim_text)
     claim_has_numeric_token = claim_has_number or any(tok in _tokenize(claim_text) for tok in numeric_tokens)
     q_tokens = extract_query_tokens(claim_text)
     ent_tokens = q_tokens.get("must_match_any", [])
+    meta_base = {
+        "query_tokens_all": ent_tokens,
+        "entity_tokens": ent_tokens,
+    }
     scored = []
     for h in hits:
         doc_id, text = h
@@ -297,11 +330,15 @@ def _post_filter_hits(
             scored.append((s, h))
     scored.sort(key=lambda x: x[0], reverse=True)
     filtered = [h for _, h in scored[:max_hits]] if scored else []
-    veto_fallback = False
     if len(filtered) >= final_k:
-        return filtered, False, {"entity_tokens": ent_tokens, "entity_veto_kept": len(filtered), "entity_veto_fallback": False, "entity_veto_trigger": "kept>0"}
+        return filtered, {
+            **meta_base,
+            "entity_veto_kept": len(filtered),
+            "entity_veto_fallback": False,
+            "entity_veto_trigger": "kept>0",
+            "overlap_keyword_fallback": False,
+        }
     if len(filtered) == 0 and ent_tokens:
-        veto_fallback = True
         scored_no_ent = []
         for h in hits:
             doc_id, text = h
@@ -315,11 +352,23 @@ def _post_filter_hits(
                 scored_no_ent.append((s, h))
         scored_no_ent.sort(key=lambda x: x[0], reverse=True)
         filtered = [h for _, h in scored_no_ent[:max_hits]] if scored_no_ent else []
-        return filtered, True, {"entity_tokens": ent_tokens, "entity_veto_kept": len(filtered), "entity_veto_fallback": True, "entity_veto_trigger": "fallback_zero_kept"}
+        return filtered, {
+            **meta_base,
+            "entity_veto_kept": len(filtered),
+            "entity_veto_fallback": True,
+            "entity_veto_trigger": "fallback_zero_kept",
+            "overlap_keyword_fallback": False,
+        }
     # Fallback: relax overlap slightly to avoid starving reranker.
     relaxed = [h for score, h in scored if score >= max(0.0, min_overlap - fallback_delta)]
     relaxed = relaxed[:max_hits]
-    return relaxed, True, {"entity_tokens": ent_tokens, "entity_veto_kept": len(relaxed), "entity_veto_fallback": True or veto_fallback, "entity_veto_trigger": "overlap_relax"}
+    return relaxed, {
+        **meta_base,
+        "entity_veto_kept": len(relaxed),
+        "entity_veto_fallback": True,
+        "entity_veto_trigger": "overlap_relax",
+        "overlap_keyword_fallback": True,
+    }
 
 
 class Reranker:
@@ -554,8 +603,12 @@ def build_nli_cache(
                 row.get("model_output", {}).get("rationale", "")
             )
 
+            retrieval_stats: Dict[str, object] = mk_base_retrieval_stats(
+                retriever, corpus_hash, top_k, max_hits, corpus_path=corpus_path, corpus_size=corpus_size
+            )
             evidence = _gather_evidence(retriever, claim_text, context, top_k=top_k)
             bm25_candidates = len(evidence)
+            retrieval_stats.update({"bm25_candidates": bm25_candidates})
             # Dedup immediately after BM25
             seen_ids_raw = set()
             deduped_raw = []
@@ -565,7 +618,7 @@ def build_nli_cache(
                 seen_ids_raw.add(pid)
                 deduped_raw.append((pid, ptxt))
             evidence = deduped_raw
-            evidence, fallback_used, entity_meta = _post_filter_hits(
+            evidence, filter_meta = _post_filter_hits(
                 claim_text,
                 evidence,
                 min_overlap=min_overlap,
@@ -574,11 +627,17 @@ def build_nli_cache(
                 numeric_time_gate=numeric_time_gate,
                 final_k=rerank_cfg.get("final_k", max_hits),
             )
+            retrieval_stats.update(filter_meta)
             if claim_id in debug_ids:
-                print(f"[DEBUG] cache build claim {claim_id} raw_hits={len(evidence)} fallback={fallback_used}")
+                print(
+                    f"[DEBUG] cache build claim {claim_id} raw_hits={len(evidence)} "
+                    f"veto_fallback={filter_meta.get('entity_veto_fallback')} "
+                    f"query_tokens={filter_meta.get('query_tokens_all')[:5] if filter_meta.get('query_tokens_all') else []}"
+                )
                 if evidence:
                     p_id, p_txt = evidence[0]
                     print(f"[DEBUG] Top premise: {p_id} :: {p_txt[:120]}... | hypothesis: {claim_text[:120]}...")
+                assert len(filter_meta.get("query_tokens_all") or []) > 0, "query_tokens empty: metadata not wired"
             if reranker:
                 evidence, rerank_scores = reranker.rerank(claim_id, claim_text, evidence)
             else:
@@ -597,11 +656,21 @@ def build_nli_cache(
             evidence = deduped
             rerank_scores = dedup_scores
             filter_kept = len(evidence)
+            retrieval_stats["unique_evidence_count"] = len(seen_ids)
             if corpus_size is not None:
                 evidence = evidence[:corpus_size]
                 rerank_scores = rerank_scores[: len(evidence)]
             if not rerank_scores:
                 rerank_scores = [0.0] * len(evidence)
+            retrieval_stats.update(
+                {
+                    "filter_kept": filter_kept,
+                    "rerank_kept": len(evidence),
+                    "final_k_effective": min(rerank_cfg.get("final_k", max_hits), len(evidence)),
+                    "query_tokens_all": filter_meta.get("query_tokens_all", []),
+                    "unique_evidence_count": len(seen_ids),
+                }
+            )
             if not evidence:
                 entry = {
                     "id": claim_id,
@@ -611,7 +680,7 @@ def build_nli_cache(
                     "rationale_sentences": rationale_sents,
                     "corpus_hash": corpus_hash,
                     "rerank_scores": rerank_scores,
-                    "filter_fallback": fallback_used,
+                    "filter_fallback": filter_meta.get("overlap_keyword_fallback", False),
                     "bm25_candidates": bm25_candidates,
                     "filter_kept": filter_kept,
                     "rerank_kept": 0,
@@ -621,10 +690,21 @@ def build_nli_cache(
                     "top_k_effective": top_k,
                     "max_hits_effective": max_hits,
                     "final_k_effective": min(rerank_cfg.get("final_k", max_hits), len(evidence)),
-                    "entity_tokens": entity_meta.get("entity_tokens", []),
-                    "entity_veto_kept": entity_meta.get("entity_veto_kept"),
-                    "entity_veto_fallback": entity_meta.get("entity_veto_fallback"),
+                    "entity_tokens": filter_meta.get("entity_tokens", []),
+                    "entity_veto_kept": filter_meta.get("entity_veto_kept"),
+                    "entity_veto_fallback": filter_meta.get("entity_veto_fallback"),
+                    "entity_veto_trigger": filter_meta.get("entity_veto_trigger"),
+                    "overlap_keyword_fallback": filter_meta.get("overlap_keyword_fallback", False),
+                    "retrieval_stats": retrieval_stats,
                 }
+                retrieval_stats.update(
+                    {
+                        "filter_kept": filter_kept,
+                        "rerank_kept": 0,
+                        "final_k_effective": min(rerank_cfg.get("final_k", max_hits), len(evidence)),
+                        "query_tokens_all": filter_meta.get("query_tokens_all", []),
+                    }
+                )
                 cache_file.write(json.dumps(entry, ensure_ascii=False) + "\n")
                 existing[claim_id] = entry
                 continue
@@ -671,7 +751,7 @@ def build_nli_cache(
                 "corpus_path": str(corpus_path) if corpus_path else "",
                 "corpus_size": int(corpus_size) if corpus_size is not None else None,
                 "rerank_scores": rerank_scores,
-                "filter_fallback": fallback_used,
+                "filter_fallback": filter_meta.get("overlap_keyword_fallback", False),
                 "bm25_candidates": bm25_candidates,
                 "filter_kept": filter_kept,
                 "rerank_kept": len(ev_entries),
@@ -679,9 +759,12 @@ def build_nli_cache(
                 "top_k_effective": top_k,
                 "max_hits_effective": max_hits,
                 "final_k_effective": min(rerank_cfg.get("final_k", max_hits), len(ev_entries)),
-                "entity_tokens": entity_meta.get("entity_tokens", []),
-                "entity_veto_kept": entity_meta.get("entity_veto_kept"),
-                "entity_veto_fallback": entity_meta.get("entity_veto_fallback"),
+                "entity_tokens": filter_meta.get("entity_tokens", []),
+                "entity_veto_kept": filter_meta.get("entity_veto_kept"),
+                "entity_veto_fallback": filter_meta.get("entity_veto_fallback"),
+                "entity_veto_trigger": filter_meta.get("entity_veto_trigger"),
+                "query_tokens_all": filter_meta.get("query_tokens_all", []),
+                "retrieval_stats": retrieval_stats,
             }
             cache_file.write(json.dumps(entry, ensure_ascii=False) + "\n")
             existing[claim_id] = entry
@@ -847,16 +930,19 @@ def _label_consistency(cache_entry: dict, label_cfg: dict, entail_t: float, cont
     }
 
 
-def _retrieval_stats(claim_text: str, cache_entry: dict) -> dict:
+def _retrieval_stats(cache_entry: dict) -> dict:
+    rs = dict(cache_entry.get("retrieval_stats") or {})
     rerank_scores = cache_entry.get("rerank_scores") or []
     evidence = cache_entry.get("evidence", []) or []
     clean_scores = [float(s) for s in rerank_scores if s is not None]
-    avg_rerank = float(sum(clean_scores) / len(clean_scores)) if clean_scores else 0.0
-    max_rerank = float(max(clean_scores)) if clean_scores else 0.0
-    kw = _extract_keywords(claim_text)
-    evidence_has_entity = False
-    numeric_claim = any(ch.isdigit() for ch in claim_text)
-    numeric_hits = 0
+    if "avg_rerank_score" not in rs:
+        rs["avg_rerank_score"] = float(sum(clean_scores) / len(clean_scores)) if clean_scores else 0.0
+    if "max_rerank_score" not in rs:
+        rs["max_rerank_score"] = float(max(clean_scores)) if clean_scores else 0.0
+    kw = _extract_keywords(cache_entry.get("claim", "") or "")
+    evidence_has_entity = rs.get("evidence_has_entity", False)
+    numeric_claim = any(ch.isdigit() for ch in cache_entry.get("claim", "") or "")
+    numeric_hits = rs.get("numeric_evidence_hits", 0) or 0
     for ev in evidence:
         txt = ev.get("passage_text", "")
         tokens = set(_tokenize(txt))
@@ -864,9 +950,8 @@ def _retrieval_stats(claim_text: str, cache_entry: dict) -> dict:
             evidence_has_entity = True
         if any(ch.isdigit() for ch in txt):
             numeric_hits += 1
-    bm25_candidates = cache_entry.get("bm25_candidates")
-    filter_kept = cache_entry.get("filter_kept")
-    rerank_kept = cache_entry.get("rerank_kept")
+    bm25_candidates = rs.get("bm25_candidates", cache_entry.get("bm25_candidates"))
+    filter_kept = rs.get("filter_kept", cache_entry.get("filter_kept"))
     final_k = len(evidence)
     unique_evidence = len({ev.get("passage_id") for ev in evidence}) if evidence else 0
     if bm25_candidates == 0:
@@ -877,33 +962,29 @@ def _retrieval_stats(claim_text: str, cache_entry: dict) -> dict:
         no_ev_reason = "rerank_empty"
     else:
         no_ev_reason = None
-    stats = {
-        "avg_rerank_score": avg_rerank,
-        "max_rerank_score": max_rerank,
-        "evidence_has_entity": evidence_has_entity,
-        "numeric_claim": numeric_claim,
-        "numeric_evidence_hits": numeric_hits,
-        "filter_fallback": bool(cache_entry.get("filter_fallback", False)),
-        "bm25_candidates": bm25_candidates,
-        "post_filter_kept": filter_kept,
-        "rerank_kept": rerank_kept,
-        "final_k": final_k,
-        "no_evidence_reason": no_ev_reason,
-        "corpus_path": cache_entry.get("corpus_path"),
-        "corpus_hash": cache_entry.get("corpus_hash"),
-        "corpus_size": cache_entry.get("corpus_size"),
-        "unique_evidence_count": unique_evidence,
-        "top_k_effective": cache_entry.get("top_k_effective"),
-        "max_hits_effective": cache_entry.get("max_hits_effective"),
-        "final_k_effective": cache_entry.get("final_k_effective"),
-        "query_tokens": cache_entry.get("entity_tokens") or [],
-        "entity_veto_kept": cache_entry.get("entity_veto_kept"),
-        "entity_veto_fallback": cache_entry.get("entity_veto_fallback"),
-        "entity_veto_trigger": cache_entry.get("entity_veto_trigger"),
-        "topic_veto_applied": cache_entry.get("topic_veto_applied", False),
-        "topic_veto_reason": cache_entry.get("topic_veto_reason"),
-    }
-    return {k: json_safe(v) for k, v in stats.items()}
+    rs.setdefault("filter_fallback", bool(cache_entry.get("filter_fallback", False)))
+    rs.setdefault("bm25_candidates", bm25_candidates)
+    rs.setdefault("post_filter_kept", filter_kept)
+    rs.setdefault("rerank_kept", cache_entry.get("rerank_kept"))
+    rs.setdefault("final_k", final_k)
+    rs.setdefault("no_evidence_reason", no_ev_reason)
+    rs.setdefault("corpus_path", cache_entry.get("corpus_path"))
+    rs.setdefault("corpus_hash", cache_entry.get("corpus_hash"))
+    rs.setdefault("corpus_size", cache_entry.get("corpus_size"))
+    rs.setdefault("unique_evidence_count", unique_evidence)
+    rs.setdefault("top_k_effective", cache_entry.get("top_k_effective"))
+    rs.setdefault("max_hits_effective", cache_entry.get("max_hits_effective"))
+    rs.setdefault("final_k_effective", cache_entry.get("final_k_effective"))
+    rs.setdefault("query_tokens_all", cache_entry.get("query_tokens_all") or cache_entry.get("entity_tokens") or [])
+    rs.setdefault("entity_veto_kept", cache_entry.get("entity_veto_kept"))
+    rs.setdefault("entity_veto_fallback", cache_entry.get("entity_veto_fallback"))
+    rs.setdefault("entity_veto_trigger", cache_entry.get("entity_veto_trigger"))
+    rs.setdefault("topic_veto_applied", cache_entry.get("topic_veto_applied", False))
+    rs.setdefault("topic_veto_reason", cache_entry.get("topic_veto_reason"))
+    rs.setdefault("evidence_has_entity", evidence_has_entity)
+    rs.setdefault("numeric_claim", numeric_claim)
+    rs.setdefault("numeric_evidence_hits", numeric_hits)
+    return {k: json_safe(v) for k, v in rs.items()}
 
 
 def run_evaluation(
@@ -993,7 +1074,7 @@ def run_evaluation(
                     # Topic veto: require at least one evidence to mention query tokens in title/text
                     topic_veto = False
                     topic_reason = None
-                    query_tokens = set(cache_entry.get("entity_tokens") or [])
+                    query_tokens = set((cache_entry.get("retrieval_stats") or {}).get("query_tokens_all") or cache_entry.get("entity_tokens") or [])
                     if query_tokens:
                         on_topic = False
                         for ev in cache_entry.get("evidence", []):
@@ -1005,6 +1086,8 @@ def run_evaluation(
                         if not on_topic:
                             topic_veto = True
                             topic_reason = "no_title_or_text_token_match"
+                    else:
+                        topic_reason = "no_query_tokens"
                     if topic_veto:
                         cv["verdict"] = "nei"
                         cv["rule_fired"] = "topic_veto_nei"
@@ -1020,10 +1103,20 @@ def run_evaluation(
                         contr_t,
                         margin,
                     )
-                metrics["retrieval_stats"] = _retrieval_stats(row.get("claim", ""), cache_entry or {})
+                metrics["retrieval_stats"] = _retrieval_stats(cache_entry or {})
 
             out_record = dict(row)
             out_record["metrics"] = metrics
+            # Finalize retrieval stats with defaults and JSON-safe conversion.
+            rs = metrics.get("retrieval_stats", {}) or {}
+            rs.setdefault("query_tokens_all", [])
+            rs.setdefault("entity_veto_kept", 0)
+            rs.setdefault("entity_veto_fallback", False)
+            rs.setdefault("entity_veto_trigger", "")
+            rs.setdefault("topic_veto_applied", False)
+            rs.setdefault("topic_veto_reason", None)
+            rs.setdefault("query_tokens", rs.get("query_tokens_all", [])[:8])
+            metrics["retrieval_stats"] = {k: json_safe(v) for k, v in rs.items()}
             out_record["timestamp_eval"] = utc_now_iso()
             out_f.write(json.dumps(out_record, ensure_ascii=False) + "\n")
 
