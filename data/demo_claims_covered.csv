@@ -49,3 +49,164 @@ id,claim,context,label,split
 4974,Says Hillary Clinton gave up 20 percent of Americas uranium supply to Russia.,a speech,barely-true,train
 4980,Says Hillary Clinton called Barack Obama naive for saying he was would sit down and talk to the Iranians during the 2008 Democratic primary.,"an interview on NBC's ""Meet the Press""",half-true,train
 5163,Says Hillary Clinton makes more per hour at a speaking gig than the average CEO does in a year.,a segment on his radio show,barely-true,train
+5400,It has been 269 days since (Hillary) Clinton has held a press conference.,an email,mostly-true,train
+5889,"Says Hillary Clinton has been a champion of globalist trade agreements. ... Worst of all, they are now pushing the disastrous 5,000-page Obamatrade the Trans-Pacific Partnership agreement.",the GOP convention in Cleveland,barely-true,train
+6074,"Says Hillary Clinton presided over $6 billion lost at the State Department, sold uranium to the Russians through (her) faux charity, illegally deleted public records, and murdered an ambassador.",a tweet,pants-fire,train
+6153,"Says Hillary Clinton promised, running for the Senate years ago, 200,000 jobs for upstate New York. ... Not only didnt they come, but they lost so many jobs.",a campaign event in Fla.,mostly-true,train
+6174,Says Hillary Clinton plans to massively increase admissions (of Middle East refugees) including a 500 percent increase in Syrian refugees coming into our country.,a speech,mostly-true,train
+6624,"America has lost nearlyone third of its manufacturing jobs since 1997, following the enactment of disastrous trade deals supported by Bill and Hillary Clinton.",a speech at the Republican National Convention,half-true,train
+6935,"Says Hillary Clinton was let off the hook for her email scandal while Gen. David Petraeus had his life destroyed for doing far, far less.",a speech,false,train
+7336,"Hillary Clinton surged the trade deficit with China 40% as Secretary of State, costing Americans millions of jobs.",a tweet,barely-true,train
+7380,"As a senator, Hillary Clinton has her name on three laws in eight years.",an interview with Sean Hannity on Fox News,half-true,train
+7656,"The man who was in charge of the investigation of Hillary Clinton accepted essentially from Hillary Clinton $675,000 that went to his wife.",a speech,barely-true,train
+7850,Says Hillary Clinton wonhealth care for 8 million children.,a TV ad ,mostly-true,train
+7982,The media widely overlooked comments made by former President Bill Clinton that Hillary Clinton had a terrible concussion that took six months to recover from.,"comments on ""Fox News Sunday""",false,train
+8458,"You (Hillary Clinton) get a subpoena, and after getting the subpoena you delete 33,000 emails.",the second 2016 presidential debate,half-true,train
+8543,"Hillary Clinton wants to shut down family farms using radical regulation, by raising business tax rates as high as nearly 50 percent and by taxing family farms again at death by as much as 45 percent.",a speech,false,train
+8565,"Says Hillary Clintons State Department approved the transfer of 20 percent of Americas uranium holdings to Russia, while nine investors in the deal funneled $145 million to the Clinton Foundation.",in a speech critiquing Hillary Clinton,barely-true,train
+8586,Says Hillary Clinton has called for a radical 550 percent increase in Syrian ... refugees . . . despite the fact that theres no way to screen these refugees in order to find out who they are or where they come from.,a speech at the Republican convention,half-true,train
+8591,Says Hillary Clinton has promised to raise taxes by $1 trillion dollars.,a robocall,half-true,train
+9194,Says Hillary Clinton tripled the number of people with AIDS whose lives are being saved .. and it did not cost you any more money.,a post on Medium,mostly-true,train
+9250,"In her campaign for president, Hillary Clinton has received $100 million in contributions from Wall Street and hedge funds.",a speech,false,train
+9282,"Says Hillary Clinton has pledged amnesty in her first 100 days, and her plan will provide Obamacare, Social Security, and Medicare for illegal immigrants, breaking the federal budget.",a speech,barely-true,train
+9636,"When Hillary Clinton ran the State Department, $6 billion was missing. How do you miss $6 billion? You ran the State Department, $6 billion was either stolen they dont know.",the third presidential debate,pants-fire,train
+10037,"Amendments (Hillary Clinton) supported and voted for in 2006, she no longer supported in 2008, showing she changed positions on an India nuclear deal.",an interview with NBC's Andrea Mitchell,false,train
+10165,"While Hillary Clinton plans a massive, and I mean massive, tax increase, I have proposed the largest tax reduction of any candidate who has run for president this year, Democrat or Republican.",his acceptance speech at the Republican Natiional Convention in Cleveland,mostly-true,train
+10491,Says hesso bipartisan that 12 of my bills were signed into law by Democratic President Bill Clinton.,a debate,mostly-true,valid
+10918,Banks paid Hillary Clinton over $1 million and are contributing millions more to elect her.,a television ad,half-true,valid
+10963,"Hillary (Clinton), one time late at night when she was exhausted, misstated and immediately apologized for it, what happened to her in Bosnia in 1995.","Boonville, Ind.",pants-fire,valid
+10991,Barack Obama and Hillary Clinton have left us with $19 trillion in debt.,a speech,barely-true,valid
+11067,CNNs Crap Polling is so bad that it shows that no one under the age of 50 has an opinion of Hillary Clinton.,an image on the Internet,pants-fire,valid
+11181,"And by the way, when I was governor, I did make the payment into the pension fund.",a radio interview,mostly-true,valid
+11414,Barack Obama has written and co-sponsored more bills in three years than Hillary Clinton has in seven.,a chain e-mail,false,valid
+11533,We know that more than half of Hillary Clintons meetings while she was secretary of state were given to major contributors to the Clinton Foundation.,"comments on ""Meet the Press""",barely-true,test
+11641,"Its entirely possible that the Democratic nominee, [Hillary Clinton], earned more money giving a single speech on Wall Street than I made the six years that I was there back in the 1980s In fact, its quite likely.",an interview with Chris Stigall on Talk Radio 1210 WPHT,barely-true,test
+11717,The fact is the Clinton Foundation has got about 80 percent in overhead and 20 percent of the money is actually getting into the places it should.,"comments on ""The Mike Gallagher Show""",false,test
+12227,"As a state rep, I was considered the fourth-most conservative in the Legislature.	states	rick-green			republican	0	1	1	0	0	a speech
+2552.json	mostly-true	Rand Paul wants us to pay $2,000 just to get Medicare.	health-care,medicare,message-machine	jack-conway	Kentucky Attorney General	Kentucky	democrat	0	1	0	2	0	a campaign commercial
+9353.json	mostly-true	Says Hillary Clinton opposed an individual mandate and favored an employer mandate back in 1993.	health-care,public-health	bobby-jindal	Governor of Louisiana	Louisiana	republican	0	1	4	4	0	an op-ed for Politico Magazine
+9577.json	mostly-true	There are more than 46 million Americans living in poverty today -- the largest number in 54 years.	medicaid,poverty	kirk-cox	House majority leader	Virginia	republican	0	0	0	1	0	a speech.
+4318.json	half-true	Since I introduced my budget -- first budget -- in March of 2010, weve created 50,000 new private-sector jobs for the people of this state.	jobs,state-budget	chris-christie	Governor of New Jersey	New Jersey	republican	10	17	27	19	8	a news conference in Belmar 
+9864.json	mostly-true	Scott Walker cut school funding more per student than any governor in America.	children,education,message-machine-2014,state-budget,states,taxes	greater-wisconsin-political-fund		Wisconsin	none	3	3	3	1	1	a TV ad
+8243.json	true	Says he would be first CPA to serve as Texas comptroller.	state-finances	raul-torres	Accountant, politician	Texas	republican	0	0	0	0	0	a campaign video
+13500.json	mostly-true	On Donald Trumps plan to cut federal funding to sanctuary cities, because of a decision by the Supreme Court, no presidents in a position to cut off funding across the board. It has to be very specific to the matter at hand.	city-budget,county-budget,federal-budget,homeland-security,immigration,state-budget	bill-de-blasio	New York City Mayor	New York	democrat	1	0	0	1	0	a WNYC interview
+9854.json	false	Thomas Jefferson said, That government is best which governs the least, because its people discipline themselves.	elections	jody-hice			republican	0	1	0	0	0	a Facebook post
+7737.json	barely-true	Proposed gun control legislation will outlaw practically every firearm, make you pay $100 per firearm, put you into a police database and make it nearly impossible to get a permit to carry a concealed weapon.	crime,criminal-justice,government-regulation,guns,market-regulation	ed-doyle	administrator, Rhode Island chapter, Gun Rights Across America.	Rhode Island	activist	1	0	0	0	0	a news release and Facebook post
+12293.json	barely-true	Says Donald Trump thinks a grown man pretending to be a woman (should) be allowed to use the womens restroom.	candidates-biography,corrections-and-updates,gays-and-lesbians,campaign-advertising	ted-cruz	Senator	Texas	republican	36	33	15	19	8	an attack ad
+457.json	half-true	McCain has voted repeatedly at least six times against funding for global HIV/AIDS, malaria and TB fund, once as one of only 14 senators.""",a news release.,half-true,test
+12480,"Says after leaving the White House, Hillary Clinton was forced to return an estimated $200,000 in White House china, furniture and artwork that she had stolen.",a post shared on Facebook,barely-true,test
+11,"Since 2000, nearly 12 million Americans have slipped out of the middle class and into poverty.",a tweet,half-true,train
+16,McCain opposed a requirement that the government buy American-made motorcycles. And he said all buy-American provisions were quote 'disgraceful.' ,a radio ad,true,train
+57,"They were going to build the wall a while ago, not so long ago, like in 06. And they couldnt get environmental impact statements.",an interview on Fox News,barely-true,train
+63,"There are 321,092 public school teachers in Texas. And there are 313,850 non-teachers in our public schools.",a Web video,mostly-true,train
+137,"The president said hes going to bring in 250,000 (Syrian and Iraqi) refugees into this country.","a segment of Fox News' ""Hannity""",pants-fire,train
+188,It is a commitment voters take very seriously: The only incumbent in Ohio to break his Pledge and vote for Ted Stricklands income tax hike was defeated soundly on Tuesday.,a news release,mostly-true,train
+196,"Under the Cash for Clunkers program, all we've got to do is ... go to a local junkyard, all you've got to do is tow it to your house. And you're going to get $4,500.",a Fox News interview,false,train
+267,"Hypocrisy at the Clinton Foundation: Top male staff made on average $218,029 while top female staff made $153,014 from 2010-2014.",an Instagram post,half-true,train
+286,"Washington, D.C., had some of the strictest gun laws in the country. And when they passed them, violence skyrocketed.",an interview on Fox News,half-true,train
+312,The government is going to have the right to get into your bank account with the health care bill and make transfers without you knowing it.,his radio program,barely-true,train
+354,"In the class of 1968 at Patrice Lumumba University in Moscow, Mahmoud Abbas was one of the members of that class, and so was Ali Khamenei. And thats where they first established relationships with the young Vladimir Putin.",an interview with CNN's Wolf Blitzer,pants-fire,train
+425,"The so-called defense minister of the Peoples Republic of Donetsk ... actually posted a bragging social media posting of having shot down a military transport. And then when it became apparent it was civilian, they pulled it down from social media.","comments on ""Fox News Sunday""",mostly-true,train
+504,Atlanta is the No. 1 trading point for sexual slavery in America. Between 100 and 200 girls are sold into slavery in Atlanta every month.,interview while promoting book,half-true,train
+586,"Says abortion doctors are flying into this state, performing abortions and flying out.",a debate on the state House floor.,false,train
+629,"Says Connie Mack initially said he would have voted yes for the Paul Ryan budget plan, and then, you said it was stupid and you would vote no. And then your folks corrected you, and you changed your position again, yes.",a U.S. Senate debate,half-true,train
+642,"Hillary's baby bond proposal would give $5,000 to each of the 4-million babies born in the U.S. each year, totaling $20-billion per year, multiplied by four years = $80-billion.",a Web site.,false,train
+661,We have 395 inmates pushed into triple-bunked cells intended for two inmates and bunked in classrooms and areas supposed to be designated for inmate labor.,a guest column,false,train
+753,Says Richard Burr was one of only three senators who voted against a ban on insider trading for members of Congress. And he called that vote brave.,a debate,true,train
+787,"In exchange for five minutes with Bill Clinton, the government of Qatar was going to give $1 million to the Clinton Foundation.","comments on ""Meet the Press""",mostly-true,train
+813,And delivered more tax relief than the other Republicans combined.,a TV ad,mostly-true,train
+881,If you have ever visited Nashville or Washington D.C. you will see MANY names and initials carved into ... desks.,an email to constituents,barely-true,train
+890,"if the Agreement goes into effect, the millions of Mexican citizens who will become eligible for Social Security benefits may have a far stronger claim to benefits and protection against cuts than U.S. citizens!",mailer,false,train
+916,"Secretary Clinton changes her position on (gun issues) every election year, it seems, having one position in 2000 and then campaigning against President Obama and saying we dont need federal standards.",the Dec. 19 Democratic presidential debate,half-true,train
+1203,And the #jerseycomeback keeps rolling! Thanks to @GovChristie NJ now has lowest corruption risk of any state.,a tweet,false,train
+1214,10 cents on thedollar from the Clinton Foundation goes to charitable causes.,the vice presidential debate,false,train
+1408,Says Hillary Clintons plan would tax many small businesses by almost 50 percent.,a speech,barely-true,train
+1474,"Says Wendy Davis, born into difficult circumstances, was the daughter of a single mother and a teenage mother herself.","a speech at National Right to Life convention, Grapevine, Texas.",half-true,train
+1518,"As governor, in the face of partisan attacks, (Charlie Crist) had the courage to save jobs and lead his state into economic recovery.",a statement,half-true,train
+1575,Mark Kirk: Lied about going to war. Opposed middle class tax cuts. And said unemployments not that big an issue.,a TV ad,barely-true,train
+1590,The Ryan budget gets rid of Medicare in 10 years and turns it into a voucher program.,a debate,false,train
+1623,"Under the Espionage Act, (Edward Snowden would not be) allowed to come into court and say I was justified in disclosing this information. There is no whistleblower exception in the Espionage Act.","a broadcast of CNN's ""The Lead""",mostly-true,train
+1687,I know that Hillary on occasion has said just last year said this (NAFTA) was a boon to the economy.,"a debate in Myrtle Beach, S.C.",false,train
+1805,"Team Trump has accused Ted Cruz of fraud in Iowa, Texas, Colorado, Oklahoma, Louisiana, Kansas, Maine, Utah and Wisconsin.",a tweet,half-true,train
+1897,The average age a child is trafficked into the commercial sex trade industry is between 11 and 14 years old.,a written statement.,half-true,train
+1954,Says U.S. Senate rival Tommy Thompson ran Medicare into the ground and nine years closer to bankruptcy.,a debate,false,train
+1974,"A lot of people who go into prison straight, and when they come out theyre gay.",an interview on CNN,false,train
+1992,Says Ted Kennedy sent a letter to then Soviet leader Yuri Andropov apologizing for Ronald Reagan and begging the Soviets not to overreact.,"a broadcast of ""The Rush Limbaugh Show""",false,train
+2002,"70,000 three-year-olds and four-year-olds across America will lose access to the preschool Head Start program. ... 2,000 in the state of Florida alone.",a TV interview,half-true,train
+2068,Millions could lose their health care coverage and be forced into a government pool under the new health care law.,a television ad,false,train
+2080,"Says Hillary Clintons top 10 donors are mainly banks, corporations and media, while Bernie Sanders top 10 donors are labor unions.",a meme on social media,mostly-true,train
+2082,"If we dont spend money on a pier, then that money does wipe into the general funds of the city or the county, and if you send it to the county, you never see it again.",a mayoral debate,half-true,train
+2099,The Department of Energys Billion Ton Study has shown that wind and solar energy combined could at best provide only 5 percent of our total energy needs.,"his book, ""This is Herman Cain! My Journey to the White House""",false,train
+2133,"If Fox News presidential debate rules had been in place during the1992 election,Bill Clinton wouldnt have beenon the stage.","comments on ""Fox News Sunday""",barely-true,train
+2189,Says Hillary Clintons plan is going to raise taxes and even double your taxes.,the third 2016 presidential debate,barely-true,train
+2220,Department of Education officials investigating Virginia Tech shootings have not once gotten into the car and driven down to Blacksburg to talk to the police chief or the university president or to anyone else.,a news release.,true,train
+2323,"In fact New Jersey is a donor state, we get 61 cents back on every dollar we send to Washington. And interestingly Kentucky gets $1.51 on every dollar they send to Washington.",an article on NJ.com,true,train
+2335,Says the U.S. Attorneys Office said that neither I nor my campaign had any idea what was going on regarding my fathers illegal campaign contributions. And thats why they closed this case.,a U.S. Congressional campaign debate,mostly-true,train
+2340,Says Ted Cruz wanted to let in more Syrian refugees and give amnesty to illegal immigrants.,a TV ad,half-true,train
+2347,"And, as of today, New Jersey state government has less employees than when Christie Whitman left office in 2001.",an interview on MSNBC’s Morning Joe,true,train
+2358,"I believe, Senator Clinton, you've raised more money from those people (the oil and gas industry) than any candidate, Democrat or Republican.",Las Vegas,half-true,train
+2366,"Congressman John Lewis, an American hero, made allegations that Sarah Palin and I were somehow associated with ... the worst chapter in American history. ... And, Senator Obama, you didn't repudiate those remarks.","a debate in Hempstead, N.Y.",true,train
+2401,When I took office last year we faced historic budget deficits of $6 billion here in Virginia. And we closed those deficits by cutting spending.,a speech.,barely-true,train
+2471,"Last year, 244 suspected terrorists walked into gun shops and attempted to purchase a firearm; 223 were able to get the firearm.",a news conference,mostly-true,train
+2509,"Gas prices have doubled because Obama opposed exploring for energy in Alaska. He gave millions of tax dollars to Solyndra, which then went bankrupt. And he blocked the Keystone pipeline. So we will all pay more at the pump.",a television ad,false,train
+2607,"Terrorist detainees were not covered by the Geneva Convention. They were unlawful combatants. And under those circumstances, they were not entitled to the normal kinds of courtesies and treatment.",an interview on Fox News,barely-true,train
+2694,People for the Ethical Treatment of Animals estimates 200 animals will be spared annually as the result of former President Bill Clinton adopting a vegan diet.,an article,half-true,train
+2699,We need to pass a carbon tax to stop climate change. Break up the Wall Street banks. And stop the government spying on innocent Americans. Cory Booker doesnt support any of these ideas.,a Democratic primary U.S. Senate seat campaign TV ad,half-true,train
+2726,And it's going to be difficult for us to do this as long as we're spending $275 million a day on a war that should have never been authorized...,"Washington, DC.",mostly-true,train
+2838,"In a budget deal struck in 2011 a trillion dollars of cuts went into effect immediately, and then a special committee was set up ... to get agreement on another $3 trillion of cuts.",an interview on Central Florida News 13,half-true,train
+2854,Says Bernie Sanders advocated putting Iranian troops into Syria to try and resolve the conflict there. Putting them right on the doorstep of Israel.,"the Democratic debate in Durham, N.H.",mostly-true,train
+2869,"Right now, in every major poll, national poll and statewide poll done in the last month, six weeks, we are defeating Trump, often by big numbersand always at a larger margin than Secretary Clinton is.",an interview on NBC's 'Meet the Press',mostly-true,train
+2878,Says Ted Cruz is a supporter of legalizing people that are in this country illegally and proposed giving them work permits.,remarks to reporters in South Carolina,false,train
+2905,The city of San Antonio reuses almost 40 percent of its water. You know how much the city of Austin reuses? About 5 percent. And thats not right. We can do better.,a TWC News debate,barely-true,train
+2999,I asked the unions to pay into their own health care insurance ... and they said I was being unreasonable. I requested that they contribute toward their own pensions ... and they screamed it was unfair.,a campaign fundraising letter,barely-true,train
+3044,There's not a major bill I know with Hillary's name on it.,"a campaign event in Ames, Iowa",mostly-true,train
+3081,A bill from U.S. Rep. Ted Yohoattempts to restrict the administrations ability to conduct national security and criminal background checks on undocumented immigrants.,a statement of policy from the Executive Office of the President,half-true,train
+3156,Very little of (the defense) budget less than 10 percent actually goes into fighting ISIS and international terrorism.,comments during the South Carolina Democratic presidential debate,barely-true,train
+3193,"As has been noted by many observers, including Bill Clinton's former secretary of labor, my plan does more than anybody to reduce costs.","Austin, Texas",false,train
+3265,"Says if you are on your bike in a crosswalk, all you have to do is dip your wheel into the road and cars must legally stop.",a tweet. ,true,train
+3295,"When Trump wanted to turn a taxpayer-owned building into an $800 anight hotel, (Congressman Jeff Denham, R-CA) helped broker the deal and bragged about it.",in a campaign TV advertisement,false,train
+3451,"Last year, Obama administration officials released into our neighborhoods more than 36,000 criminal immigrants who had nearly 88,000 convictions. The crimes included hundreds of convictions for murder, rape and kidnapping and thousands of drug-related crimes.",a letter to the editor of the San Antonio Express-News,half-true,train
+3475,If Senator Clinton or John McCain had stood up in previous years for increases in fuel efficiency standards . . . then we would not be in this same situation in the first place.,an appearance on NBC's Meet the Press.,half-true,train
+3491,"When Chuck Schumer and Marco Rubio tried to push amnesty, it was Ted Cruz who stopped them.",a radio ad,barely-true,train
+3574,"New Jersey today has fewer employees in state government than it had when Christie Whitman left office in January of 2001, and I think thats good. And we did it without any layoffs. We did it through attrition.",an appearance at the Brookings Institution,false,train
+3595,Warren Buffett recently said Scrap Obamacare and Start All Over.,posts on the Internet,pants-fire,train
+3734,"Live cats have holes drilled into their skulls, posts put into their heads and coils put into their eyes, and some have had their ears cut off or are intentionally deafened or starved at UW-Madison labs that do research to improve hearing in humans.",a robo-call and video,half-true,train
+3738,"Mitt Romney did not endorse Ted Cruz, even though he said he is voting for Cruz and urged others to do likewise.",The New York Times,half-true,train
+3754,"We are in the sixth year of recovery, and median income is below what it was at the start of the recovery.",an interview with the Pittsburgh Tribune-Review,true,train
+3797,I have a record on the environment of creating green energy ... taking trash and turning it into cash.,a candidate forum,mostly-true,train
+3798,"Tyler Perrys plan to turn a majority of the former Fort McPherson into a film and television studio is expected to add over 8,000 new jobs to Atlanta.",press release,half-true,train
+3823,Puerto Ricos $70 billion debt is unsustainable and it is unpayable. And the reason why it is unsustainable has everything to do with the greed of Wall Street vulture funds.,a town hall in San Juan,half-true,train
+3844,Tens of billions of dollars (from taxpayer-funded bailouts) ... flowed straight through AIG into the coffers of foreign corporations and foreign banks.,a TV interview,true,train
+3868,"If you log into the governments Cash for Clunkers Web site (cars.gov) from your home computer, the government can seize all of your personal and private information, and track your computer activity.",the Glenn Beck show,false,train
+3898,"A new manufacturing plant is slated to create about 3,000 jobs in central and northeast Georgia and create about a $3 billion infusion into the economy.",a television interview,half-true,train
+4012,Texas now has the second-highest high school graduation rate in the country. And it has the highest graduation rate for African Americans and Hispanics.,his declaration for president,mostly-true,train
+4120,Every major study that has been done by a legitimate group ...shows that there are hundreds of thousands of jobs to be created if you pass our (cap-and-trade) legislation. And if you wind up pricing carbon.,"ABC's ""This Week""",false,train
+4162,SaysPresident Obama hijacked the farm bill (and) turned it into a food stamp bill.,a campaign ad,pants-fire,train
+4288,"Fred's never had a 100 percent record on right-to-life in his Senate career. The records reflect that. And he doesn't support the human life amendment, which is most amazing because that's been a part of the Republican platform since 1980.",an appearance on Fox News Sunday,half-true,train
+4326,"The Medicare drug program resulted in the program coming in 40 percent under budget. ... And the reason it was, is because the design was right.",a debate in South Carolina,half-true,train
+4351,Warren Buffett called credit default swaps financial weapons of mass destruction. And Greene was the first individual to use them.,a TV ad.,true,train
+4412,I deployed the Texas National Guard to the Texas-Mexico border. And the policy worked; apprehensions at the border declined 74 percent.,his speech declaring his candidacy for president,barely-true,train
+4413,"Since World War II, only Gerald Ford and Bill Clinton have had worse ratings after seven months than President Obama.",an op-ed in The Washington Post,true,train
+4605,"Says Hillary Clintons plan would bring in 620,000 refugees in her first term, alone, with no effective way to screen or vet them. Her plan would cost $400 billion in terms of lifetime welfare and entitlement costs.",a speech in North Carolina,false,train
+4628,"In 2010, everybody said you cant dare let guns go into the national parks, and of course the rapes, murders, robberies and assaults are down about 85 percent since we did that.","an interview with MSNBC's ""Morning Joe""",false,train
+4739,"We had a No Child Left Behind a similar piece of legislation in our state a number of years ago, well before the federal law. And it's had a big impact here. It's improved schools.",an interview,true,train
+4741,"Were the seventh highest taxed state in America. And thats not just state, its local as well.",a public appearance,false,train
+4780,Taxpayers pay for roughly 45 percent of all births in Wisconsin! And 60 percent of the births in Milwaukee!!!,a tweet,true,train
+4821,Woodrow Wilson borrowed $30 billion to fund World War I in 1917. That money has not been paid back. And we are still paying interest on it.,"an interview on ""Fox and Friends""",barely-true,train
+4823,"More than 1.5 million people moved into Georgia between the past two Census counts, and a majority consider themselves, African-American, Latino or Asian-American.",In an article,mostly-true,train
+4898,Connecticuts take on slot machines is 25 cents on the dollar. And the states take on table games: zero.,"an interview on ""10 News Conference""",true,train
+4959,"NAFTA, supported by the Secretary (Clinton), cost us 800,000 jobs nationwide.","the Democratic debate in Flint, Mich.",barely-true,train
+5033,Obama says Clinton in 2002 suggested there was a connection between al-Qaida and the Iraqi government.,"an interview on MSNBC's ""Hardball.""",true,train
+5132,Margaret Sanger wanted a black Christian leader to be like a Judas goat and lead the blacks to genocide. Remember that? And they picked Martin Luther King as their spokesman.,a TV broadcast.,pants-fire,train
+5144,Says U.S. Sen. Ron Johnson voted to let oil and gas companies emit unlimited carbon pollution into our air,a TV ad,true,train
+5154,"(Chris Christie) has not paid one dollar of state money into our pension system, and then states that the system is broke.",a column on bluejersey.com,mostly-true,train
+5236,A construction worker whos making $50 or $60 grand a year shouldnt be paying higher tax rates than the guy whos making $50 million a year. And thats how its working right now.,"a speech in Cincinnati, Ohio",half-true,train
+5272,"Mayor Giuliani made New York City what's known as a 'sanctuary city,' where illegal aliens were allowed to come. And he instructed the leaders of the city not to enforce the law, not to enforce immigration law.",a campaign event carried on CNN.,half-true,train
+5359,"Says President Barack Obama came into office very concerned about wiretappings but then he became president of the United States, he got all the briefings (and) he decided the balance is probably pretty appropriately struck.","comments on ABC's ""This Week""",mostly-true,train
+5389,"As usual, Hillary the Dems are trying to rig the debates so 2 are up against major NFL games.",a tweet,pants-fire,train
+5490,"So far, the Recovery Act is responsible for the jobs of about 2 million Americans who would otherwise be unemployed. ... [And] the Recovery Act is on track to save or create another 1.5 million jobs in 2010.",an address at the Eisenhower Executive Office Building,half-true,train
+5532,"And, you know, our first president and our first commander in chief prayed every day. He had a field manual of prayers.",a Fox News interview,false,train
+5564,Kewpie burgers are delicious. An Ohio institution. And theyll cost less thanks to John Kasichs tax cut.,a Tweet,mostly-true,train
+5591,"The Obama-Clinton war on coal has cost Michigan over 50,000 jobs.",an economic address in Detroit,false,train
+5619,"Of the 13 (Bill) Clinton speeches that fetched $500,000 or more, only two occurred during the years his wife was not secretary of state.","his book ""Clinton Cash""",true,train
+5681,SaysHillary Clinton took 13 hours to send help to Americans under fire during the terrorist attack in Benghazi.,a speech at a Trump rally,false,train

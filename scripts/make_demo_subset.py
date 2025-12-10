@@ -1,5 +1,7 @@
 """
-Select a demo subset of claims with non-NEI verdicts from an eval JSONL.
+Select a demo subset of claims with non-NEI verdicts from an eval JSONL,
+optionally balancing entail and contradict to keep the demo from feeling
+one-sided.
 """
 
 from __future__ import annotations
@@ -16,6 +18,7 @@ def main():
     ap.add_argument("--in-jsonl", default="outputs/demo_853_eval.jsonl", help="Eval JSONL with metrics.")
     ap.add_argument("--out-csv", default="data/demo_claims_verified.csv", help="Output CSV with verified claims.")
     ap.add_argument("--target-n", type=int, default=25)
+    ap.add_argument("--balance", action="store_true", help="Balance entail and contradict roughly equally.")
     args = ap.parse_args()
 
     rows = []
@@ -26,13 +29,15 @@ def main():
             except json.JSONDecodeError:
                 continue
 
-    scored: List[dict] = []
+    entails: List[dict] = []
+    contradicts: List[dict] = []
     for row in rows:
         cv = (row.get("metrics") or {}).get("claim_verification", {}) or {}
         verdict = cv.get("verdict")
         if verdict not in {"entail", "contradict"}:
             continue
-        scored.append(
+        dest = entails if verdict == "entail" else contradicts
+        dest.append(
             {
                 "id": row.get("id"),
                 "claim": row.get("claim"),
@@ -46,8 +51,21 @@ def main():
             }
         )
 
-    scored.sort(key=lambda x: (max(x["max_entail"], x["max_contradict"]), x["max_gap"]), reverse=True)
-    scored = scored[: args.target_n]
+    entails.sort(key=lambda x: (max(x["max_entail"], x["max_contradict"]), x["max_gap"]), reverse=True)
+    contradicts.sort(key=lambda x: (max(x["max_entail"], x["max_contradict"]), x["max_gap"]), reverse=True)
+
+    if args.balance:
+        half = args.target_n // 2
+        scored = entails[:half] + contradicts[: args.target_n - len(entails[:half])]
+        # If not enough contradicts, fill from entails, and vice versa
+        if len(scored) < args.target_n:
+            scored.extend(entails[len(entails[:half]) : args.target_n - len(scored)])
+            if len(scored) < args.target_n:
+                scored.extend(contradicts[len(contradicts[: args.target_n - len(scored)]) : args.target_n - len(scored)])
+    else:
+        scored = entails + contradicts
+        scored.sort(key=lambda x: (max(x["max_entail"], x["max_contradict"]), x["max_gap"]), reverse=True)
+        scored = scored[: args.target_n]
 
     out_path = Path(args.out_csv)
     out_path.parent.mkdir(parents=True, exist_ok=True)

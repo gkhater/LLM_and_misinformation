@@ -1,6 +1,6 @@
 input_claims_csv: "data/demo_claims_covered.csv"
 input_split: null
-max_rows: 50
+max_rows: null
 
 retrieval:
   backend: "local_bm25"
@@ -42,5 +42,9 @@ gating:
   skip_fact_precision_if_label_unknown: true
   min_confidence_for_fact_precision: 0.3
   disallow_fact_precision_on_context_only: false
+
+eval:
+  store_evidence: false
+  max_evidence_to_store: 2
 
 output_jsonl: "outputs/demo_853_eval.jsonl"
