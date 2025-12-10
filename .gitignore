@@ -10,4 +10,7 @@ Thumbs.db
 *.log
 data/raw/
 data/tmp/
+data/*.tsv
+data/beir/
+data/fever/
 *.ipynb

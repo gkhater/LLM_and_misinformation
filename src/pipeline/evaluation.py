@@ -1021,9 +1021,18 @@ def run_evaluation(
     max_rows: Optional[int] = None,
     smoke: bool = False,
     debug_ids: Optional[Iterable[int]] = None,
+    input_claims_csv: Optional[str] = None,
+    input_jsonl: Optional[str] = None,
 ) -> str:
     with open(eval_config_path, "r", encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
+
+    # Optional overrides from CLI
+    if input_claims_csv:
+        cfg["input_claims_csv"] = input_claims_csv
+        cfg["input_jsonl"] = None
+    if input_jsonl:
+        cfg["input_jsonl"] = input_jsonl
 
     effective_max_rows = max_rows if max_rows is not None else cfg.get("max_rows")
 
@@ -1104,23 +1113,27 @@ def run_evaluation(
 
                 if cfg["metrics"].get("claim_verification", {}).get("enabled", False):
                     cv = _claim_verification(cache_entry, entail_t, contr_t, margin)
+                    disable_topic_veto = bool(eval_cfg.get("disable_topic_veto", False))
                     # Topic veto: require at least one evidence to mention query tokens in title/text
                     topic_veto = False
                     topic_reason = None
                     query_tokens = set((cache_entry.get("retrieval_stats") or {}).get("query_tokens_all") or cache_entry.get("entity_tokens") or [])
-                    if query_tokens:
-                        on_topic = False
-                        for ev in cache_entry.get("evidence", []):
-                            text_lower = (ev.get("passage_text") or "").lower()
-                            title_lower = text_lower.split("\n")[0] if "\n" in text_lower else text_lower
-                            if any(tok in text_lower for tok in query_tokens) or any(tok in title_lower for tok in query_tokens):
-                                on_topic = True
-                                break
-                        if not on_topic:
-                            topic_veto = True
-                            topic_reason = "no_title_or_text_token_match"
+                    if not disable_topic_veto:
+                        if query_tokens:
+                            on_topic = False
+                            for ev in cache_entry.get("evidence", []):
+                                text_lower = (ev.get("passage_text") or "").lower()
+                                title_lower = text_lower.split("\n")[0] if "\n" in text_lower else text_lower
+                                if any(tok in text_lower for tok in query_tokens) or any(tok in title_lower for tok in query_tokens):
+                                    on_topic = True
+                                    break
+                            if not on_topic:
+                                topic_veto = True
+                                topic_reason = "no_title_or_text_token_match"
+                        else:
+                            topic_reason = "no_query_tokens"
                     else:
-                        topic_reason = "no_query_tokens"
+                        topic_reason = "disabled"
                     if topic_veto:
                         cv["verdict"] = "nei"
                         cv["rule_fired"] = "topic_veto_nei"

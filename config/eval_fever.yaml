@@ -1,10 +1,10 @@
-input_claims_csv: "data/demo_claims_verified.csv"
+input_claims_csv: null  # set to FEVER claims CSV when available
 input_split: null
 max_rows: null
 
 retrieval:
   backend: "local_bm25"
-  corpus_path: "data/wiki_seeded_passages_demo_853.tsv"
+  corpus_path: "data/fever_passages.tsv"
   top_k: 50
   post_filter:
     min_overlap: 0.05
@@ -16,15 +16,15 @@ retrieval:
     final_k: 5
 
 nli:
-  cache_path: "outputs/demo_853_nli_cache.jsonl"
+  cache_path: "outputs/fever_nli_cache.jsonl"
   fast_model_name: "typeform/distilbert-base-uncased-mnli"
   refine_model_name: null
   refine_threshold: 0.55
   refine_top_k: 0
-  entail_threshold: 0.42
-  contradict_threshold: 0.60
+  entail_threshold: 0.45
+  contradict_threshold: 0.55
   batch_size: 32
-  margin: 0.07
+  margin: 0.10
 
 metrics:
   fact_precision:
@@ -33,9 +33,9 @@ metrics:
     enabled: true
   label_consistency:
     enabled: true
-    true_labels: ["true", "mostly-true", "mostly true", "half-true", "half true"]
-    false_labels: ["false", "pants-fire", "pants on fire", "pants-fire!", "pants-fire", "pants on-fire", "barely-true", "barely true"]
-    mixed_labels: ["half-true", "half true", "barely-true", "barely true"]
+    true_labels: ["SUPPORTS", "supports", "true"]
+    false_labels: ["REFUTES", "refutes", "false"]
+    mixed_labels: ["NOT ENOUGH INFO", "NOT_ENOUGH_INFO", "nei"]
 
 gating:
   require_output_ok_for_fact_precision: true
@@ -46,5 +46,6 @@ gating:
 eval:
   store_evidence: true
   max_evidence_to_store: 2
+  disable_topic_veto: true
 
-output_jsonl: "outputs/demo_verified_eval.jsonl"
+output_jsonl: "outputs/eval_fever.jsonl"

@@ -22,7 +22,7 @@ nli:
   refine_threshold: 0.55
   refine_top_k: 0
   entail_threshold: 0.45
-  contradict_threshold: 0.50
+  contradict_threshold: 0.55
   batch_size: 32
   margin: 0.10
 

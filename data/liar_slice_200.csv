@@ -1,0 +1,201 @@
+id,split,claim,context,label
+6726,train,Medicaid patients were 97 percent more likely to die than those with private insurance.,an email to constituents,barely-true
+535,train,A bill delaying the start of classes until Labor Day would permit school districts to shave 5 full weeks off the school year.,an Ohio House committee hearing ,true
+9035,train,McCain opposes repeal of the death tax.,a TV ad,mostly-true
+12075,test,"A new ruling by the EPA would force dairy farmers to comply with the Spill Prevention, Control and Countermeasure Program when dealing with spilt milk -- the same regulations oil and natural gas producers must follow.",a newsletter.,false
+8738,train,"Says it cost Massachusetts taxpayers $100,000 when Mitt Romney and his staff purchased computer hard drives.",a Democratic Natonal Committee advertisement,false
+4619,train,"Says President Barack Obama initially said the national health-care mandate isnt a tax, but his administration now says it is a tax.",a message on Twitter,mostly-true
+890,train,"if the Agreement goes into effect, the millions of Mexican citizens who will become eligible for Social Security benefits may have a far stronger claim to benefits and protection against cuts than U.S. citizens!",mailer,false
+10407,valid,"Within just a few years, immigration as a share of national population is set to break all historical records.",a speech in Arizona,mostly-true
+7325,train,The man who killed a motorist who fatally struck a 2-year-old was back on the street because he had received a 13-year sentence for bank robbery but only served two years.,an interview,barely-true
+7334,train,The rate in which people are working (in Wisconsin) is almost five points higher than it is nationally.,a debate,mostly-true
+1412,train,"Says someone earning $50,000 a year will fare better under his 9-9-9 plan than under the current tax system.","an interview in St. Petersburg, Fla., aboard his campaign bus",barely-true
+7753,train,"The Clintons now charge the Secret Service $10,000 monthly rent for the use of (a) Secret Service residence and that rent is just about equal to their mortgage payment.",an e-mail message circulated by many people.,false
+10636,valid,Because as a Senator Toomey stood up for Wall Street. He wanted to privatize Social Security and invest it in the stock market. Wall Street would make billions in fees even if the stock market crashed.,In a political ad,mostly-true
+8491,train,Its the first time in the nation this many members have been drawn (by a Legislature) into the same districts where it wasnt a court order.,remarks to the press,mostly-true
+8002,train,"Medicare Part D was far more expensive than the Affordable Care Act and unlike the act, was never budgeted.",an image shared on Facebook,mostly-true
+8701,train,The Austin school district calendar lists 64 different dates for either a state-mandated test or make-up test.,an op-ed column.,barely-true
+4578,train,"Georgia Secretary of State Brian Kemp is a ""career politician.""",a campaign flier,false
+6294,train,The payday loan industry does not exist in a state like Minnesota.,a newspaper article,false
+10073,train,Online voter registration is a more secure way of doing voter registration.,a Senate Ethics and Elections committee hearing,mostly-true
+8726,train,"A school uniform policy helps with school safety, helps with truancy.",a discussion about school uniforms,half-true
+3165,train,"Marco Rubio spent $400K of your tax dollars remodeling offices, and building a members-only lounge.",a Facebook post,true
+9966,train,Tim Kaine made Virginia the best state for business four years in a row.,a TV ad.,barely-true
+5215,train,"Says the state auditor found that 37 percent of the 428,000 students receiving free and reduced-price lunches are ineligible.",a speech before the East Jersey Tea Party,false
+1103,train,Says he couldnt keep a 42-inch redfish he caught because of fishing rules.,a posting on Twitter,true
+5287,train,Many just call him Lyin Ted. ... HisTV ad about John Kasich? Lie! Stations had to pull it off the air.,a television ad.,false
+11556,test,On which team hes rooting for in the World Series.,,half-true
+9582,train,"Wisconsins economy has tanked under Gov. Scott Walker andso far in 2015 over 6,685 people have been laid off, already more than in all of 2014.",a website posting,false
+11287,valid,The governors budget proposal reduces the state austerity cut to education to under $500 million for 2016.,blog post,true
+10165,train,"While Hillary Clinton plans a massive, and I mean massive, tax increase, I have proposed the largest tax reduction of any candidate who has run for president this year, Democrat or Republican.",his acceptance speech at the Republican Natiional Convention in Cleveland,mostly-true
+6524,train,"Gov. Rick Scott tried to kick 180,000 people off the voter rolls.",an email,false
+12502,test,"A Texas law requires every high school to have a voter registrar and part of their responsibility is to make sure that when children become 18 and become eligible to vote, that they vote.",a civic summit hosted by Austin's KLRU-TV,half-true
+2216,train,"The U.S. Department of Defense spends $80 million a year on prostate cancer research, $25 million a year on ovarian cancer research and $150 million a year on breast cancer research.",a hearing,mostly-true
+6439,train,I sponsored and was the co-sponsor of the only legislation that ever passed that had E-Verify provisions in it back in 2010 when I served in the Legislature.,a debate,false
+7701,train,"Cuccinelli wants to make all abortion illegal, even in cases of rape and incest, even to protect a womans health.",a TV ad.,barely-true
+8219,train,Says gubernatorial candidate Clay Pell hasnt spent a dime on advertising.,"an interview on WPRI's ""Newsmakers"" program",pants-fire
+8159,train,The very first meal on the surface of the moon was the Holy Communion.,a Facebook post,true
+11825,test,Florida is investing record amounts of funding for HIV/AIDS prevention.,a Tampa Bay Times interview,barely-true
+5532,train,"And, you know, our first president and our first commander in chief prayed every day. He had a field manual of prayers.",a Fox News interview,false
+7017,train,"When Mitt Romney was governor, Massachusetts ranked 47th out of 50 states in job creation.",a CNN interview,half-true
+9420,train,The U.S. Department of Homeland Security warned that the SAVE database is not a foolproof means of verifying (citizenship on) the voter rolls.,a statement,true
+3196,train,Its coming. Nobody can stop this train.,a speech at a Labor Day rally in Milwaukee,false
+10065,train,"Since Sept. 11, 2001, 270,000 Americans were killed by gunfire at home.",a comic strip,mostly-true
+188,train,It is a commitment voters take very seriously: The only incumbent in Ohio to break his Pledge and vote for Ted Stricklands income tax hike was defeated soundly on Tuesday.,a news release,mostly-true
+3806,train,Texas is growing twice as fast as the rest of the country.,campaign video,true
+912,train,Says Gov. Scott Walker didnt balance the budget so we now have a larger state deficit 14 months into (his) term than we did when he was elected.,an appearance at Marquette University,half-true
+5692,train,I did not vote to spend money to fight that (Amendment 6 redistricting) lawsuit.,a public hearing about redistricting,true
+7879,train,Democratic candidate Jeff Greene ran for Congress as a California Republican.,a television ad,true
+7627,train,"Says that in his book, Rick Perry said that Social Security is unconstitutional.",a Republican presidential debate,mostly-true
+2134,train,U.S. Senate candidate Todd Akin was partly right that a womans body has a way of shutting down so that a pregnancy doesnt occur if shes raped.,a speech,false
+9273,train,"Contrary to media reports, Georgias gas tax change led to no price increase at the pump.",a Georgia Public Policy Foundation blog post,half-true
+643,train,"Says her campaign platform includes the biggest investment in new, good-paying jobs since World War II.","a campaign speech in Scranton, Pa. ",half-true
+8760,train,I sponsored the new Buy American law,an Oregon Voters' Pamphlet statement,false
+8799,train,"Georgia has the 9th highest rate of adults, ages 18 to 64, without a high school diploma or GED.",a report,true
+7031,train,Says Jeb Bush once held $1 million in family planning grants hostage until the programs receiving the money agreed not to discuss birth control at all.,a column on Medium,barely-true
+4049,train,"If Cory Gardner gets his way, youd better stock up on condoms.",a television ad,pants-fire
+9613,train,"When Charlie Crist was elected governor, Florida ranked 31st in K-12 education. ""Last year ... we went from 31st to 14. And this year, the top 10 in America.""",a meeting of Florida Republicans,half-true
+11363,valid,"When Carly Fiorina says Hewlett-Packard revenues went up, thats because she bought Compaq. It was a terrible deal.",the second GOP primary debate,mostly-true
+10197,train,A judge took the Star Scientific tax case away from Ken Cuccinelli,debate,barely-true
+3817,train,"Alison Alter has exploited a campaign finance loophole to obtain over $64,000 in public dollars to fund her campaign.",a mailer spotted by an Austin voter,half-true
+1527,train,"Says Joe Biden said Jon Corzine is the smartest guy that I know, in terms of the economy and on finance, I really mean this.",a web ad posted on YouTube,true
+12236,test,Says the success of his economic agenda is supported by the fact we went from unemployment at 9.2 percent when I decided to run for governor four years ago to two points lower.,a television interview,barely-true
+1256,train,My opponent promises to bring back old jobs by wishing away the global economy.,"St. Paul, Minn.",false
+11798,test,"Says his bill, HB 97, would prevent the use of taxpayer dollars on abortions.",comments before a House subcommittee,false
+9894,train,"Says Charlie Crist was pro-life, pro-gun and vehemently anti-tax.",an op-ed in the Tampa Bay Times,mostly-true
+3515,train,Says proposed anti-abortion legislation would force women facing the most personal of health decisions to endure a transvaginal ultrasound.,an emailed statement,half-true
+3240,train,"In 2012, Connie Mack missed 178 votes, one of the worst voting records in Congress.","in a debate in Davie, Fla.",mostly-true
+12510,test,Says that Donald Trump supported Charlie Crist.,comments at a GOP debate in Cleveland,mostly-true
+2766,train,"Says that in her speech to the pro-Israel group AIPAC, Hillary Clinton had one line on the Palestinian people.",an interview on ABC's 'This Week',barely-true
+8559,train,"US: Change in Income, 2009-13. Top 1%: +31.4%. Bottom 99%: +0.4%.",a tweet,mostly-true
+1794,train,Donald Trump would engage in a risky scheme to privatize Social Security.,the 2016 vice presidential debate,barely-true
+7957,train,"I would love to see us have in this country what I helped lead in Arkansas...Amendment 65 (which) says that we believe life begins at conception, and that we ought to do everything in the world possible to protect it until its natural conclusion.","a debate in Durham, N.H.",barely-true
+2374,train,Says middle-class New York State residents will have the lowest tax rate in 70 years.,a press conference and several other recent public appearances.,mostly-true
+12513,test,Gov. Sarah Palin got precisely zero support for her call for Alaskas Democratic Senator Mark Begich to resign because Ted Stevens corruption conviction was overturned.,an episode of her MSNBC show,false
+10435,valid,The same federal government that offers some money for a program is walking away from another health care program.,a speech,half-true
+2876,train,Tampa Bay isleading the state in jobs creation.,a campaign ad,barely-true
+4806,train,"Wisconsin does not have a deficit. Thanks to Republican reforms, the 2014 budget will begin with a $443 million surplus.",a news release,half-true
+5468,train,Virtually no Republican in Washington accepts climate change science.,"comments on ABC's ""This Week""",mostly-true
+2984,train,Says Maryellen OShaughnessy accepted campaign cash from indicted politician Jimmy Dimora.,a campaign mailer,false
+348,train,President Reagan did it (raised the debt ceiling) 18 times. George W. Bush did it seven times.,a televised address,true
+11889,test,"Tommy Thompson created the first school choice program in the nation, giving thousands of Milwaukee students the choice of where they go to school no matter where they live or how much money their parents make.",his campaign Web site.,true
+3460,train,We just had someone last week in Neenah near a school kill someone with a bow and arrow.,a news conference,pants-fire
+11118,valid,"Says Connie Mack IV has been a promoter for Hooters with a history of bar room brawling, altercations and road rage.",a TV ad,mostly-true
+5236,train,A construction worker whos making $50 or $60 grand a year shouldnt be paying higher tax rates than the guy whos making $50 million a year. And thats how its working right now.,"a speech in Cincinnati, Ohio",half-true
+10575,valid,We have the highest tax rate anywhere in the world.,a speech.,false
+3795,train,"ISIS is right now crucifying Christians in Iraq, literally nailing Christians to trees.",an interview with WFAA-TV,false
+8720,train,DeKalb County has graduated five police academies and three fire academies to help reach its ambitious hiring goals in both departments.,the 2015 State of the County address,mostly-true
+6040,train,Bill Clinton's peace dividend . . . cut the military 25 and 30 percent.,a Republican debate in Boca Raton.,half-true
+1669,train,Georgia has the most lax gun laws in the nation.,a speech,false
+4555,train,On whether Barack Obama was born in the United States.,comments at a speech,false
+6462,train,Ive even cut my own salary -- twice.,a campaign video,true
+12487,test,Says the oil industry subsidies that President Barack Obama is attacking dont exist,a news conference,false
+10189,train,"With Obamacare, were fixing to get hit with the biggest entitlement program the American taxpayers have ever seen.","a discussion on CNN's ""Crossfire""",barely-true
+11614,test,"Mitch McConnell opposed ""legislation to create and protect Kentucky jobs . . . help for the unemployed. . . health care for Kentucky's children,"" and ""fair pay for women.""",a television ad,barely-true
+1643,train,The Paris Agreement is by far the largest number of countries ever to sign an international agreement on a single day.,comments,mostly-true
+7274,train,"Among manufacturers with fewer than 50 employees, the average cost in terms of regulations is $34,000 per employee.",a Republican presidential debate,half-true
+1689,train,Says Russ Feingold was the only senator to vote against Homeland Security.,a TV ad,false
+11900,test,"Sarah Palin ""already has more executive experience"" than Barack Obama and Joe Biden ""combined.""","St. Paul, Minn.",true
+6398,train,"The ""pay-as-you-go law ... was a big reason why we had record surpluses in the 1990s.""",his State of the Union address,half-true
+4928,train,School children can earn higher grades by studying Islam under a new nationwide Muslim outreach program announced by President Barack Obama.,viral posts on the Internet,pants-fire
+5920,train,"Says Charlie Crist wants felons who commit a heinous crime such as intentional permanent disfigurement of a child, you walk out of jail, you immediately get to vote.",the CNN debate,barely-true
+258,train,A precinct in the Allen West-Patrick Murphy recount has 7 registered voters in Guatemalan community and the tally showed 900 voted!!!!!,a post on Facebook,false
+318,train,"Rep. Paul Ryans Medicare plan lines the pockets of the private insurance companies, increases costs for seniors and does not reduce the deficit.",a press release.,half-true
+12326,test,Says the initial Portland plastic bag ban represented only a modest share of total single-use checkout bag use.,a proposed ordinance.,barely-true
+5492,train,"Says the 1956 Republican Party platform supported equal pay, the minimum wage, asylum for refugees, protections for unions and more.",a meme on social media,mostly-true
+2549,train,"The IRS filed an $11,000 lien against (Allen) West for back taxes. Three liens were placed on his home for unpaid bills, and a judge ordered West to pay over $5,000 for past due credit card bills.",a campaign TV advertisement.,mostly-true
+9313,train,I can't sign money. That's illegal.,"a comment to a shopper at a supermarket in Des Moines, Iowa.",barely-true
+12113,test,"This town (Wilmington, Ohio) hasnt taken any money from the government. They dont want any money from the government.",his radio broadcast,pants-fire
+7606,train,"First, he said he would take all of our troops out in six months, and now he acknowledges it would take a year.",,half-true
+10532,valid,Warren Buffett says stop Obamacare now and start over.,an ABC News interview,pants-fire
+3951,train,"In total, we have added nearly 75,000 private sector jobs in New Jersey since we took office in January 2010.",State of the State address,true
+9543,train,There has been a 100 percentincrease in student debt under this Democratic White House.,a Twitter exchange,half-true
+9916,train,"The president won the youth vote 3 to1, but his numbers have dropped 20, 30 percent among the youth.",a 'Fox News Sunday' interview,mostly-true
+11296,valid,"In Catherine Cortez Mastos last term as attorney general, Nevada murder went up 11 percent, robbery went up 28 percent, rape 51 percent. When Cortez Masto left office, Nevada ranked as Americas third most dangerous state.",a television ad,barely-true
+5644,train,Eighty percent of all U.S. communities depend solely on trucks to deliver and supply the products sold in stores or ordered online.,a congressional hearing,mostly-true
+3591,train,"400,000 Oregonians have gained access to health care through the Affordable Care Act.",an interview,half-true
+9824,train,Twenty-five percent of our kids in foster care are there because their parents are involved in drugs.,"an interview on ABC's ""This Week""",true
+656,train,Accuses President Barack Obama of making contradictory claims about efforts to kill Osama bin Laden in 2008 and 2011.,a chain e-mail,pants-fire
+2196,train,90% of Americans want national background checks that close loopholes.,a tweet after the shootings at an Oregon community college,true
+10591,valid,My husband and I have never gotten a penny of money from the farm.,an interview on Fox News,false
+9036,train,Says signs posted at projects funded by the federal stimulus act has cost 20 or 40 million dollars.,a radio interview ,half-true
+916,train,"Secretary Clinton changes her position on (gun issues) every election year, it seems, having one position in 2000 and then campaigning against President Obama and saying we dont need federal standards.",the Dec. 19 Democratic presidential debate,half-true
+1334,train,The Social Security disability fund is going belly up in 2016.,remarks at Politico breakfastt,true
+9248,train,Let's not blame President Bush for all of this. We've got a Congress who sat around on their hands and done nothing but spend a lot of money ... leaving us $9-trillion in debt that we're passing on to our grandchildren.,"a debate in Simi Valley, Calif.",half-true
+1910,train,"Under Barack Obama's plan, the government would spend $1-trillion more.",a TV ad,half-true
+12074,test,One of every two Wisconsin residents are on some kind of government handout.,a speech at the state GOP convention,false
+2101,train,Says Mitt Romneys campaign has already spent more on negative ads than John McCain did during his entire presidential run.,a press release,false
+939,train,"Says opponent Bill Flores helped run a company that laid off over 3,000 workers and paid off executives with millions.",a TV ad.,false
+3449,train,Says he has a track record of not raising taxes.,an interview,false
+4539,train,"Over the last 10 years, Georgias public health has declined.",a speech,half-true
+11384,valid,"The Wisconsin state Assembly chambers extend to the bathroom and the parlor, and rules allow members to vote for each other if the member is in the chambers.",a television interview,mostly-true
+8468,train,This president spends 30 times as much money on global warming research as he does on weather forecasting and warning.,a House floor speech,barely-true
+10620,valid,"Gov. Pence said, inarguably, Vladimir Putin is a better leader than President Obama.","the vice presidential debate in Farmville, Va.",mostly-true
+904,train,"Dem-controlled Ohio House voted to change the process, to create objective criteria, to modify the Constitution ... to take politics out of the efforts to draw legislative boundaries.",a news conference,false
+9438,train,The health care reform bill is the largest tax increase in U.S. history.,"a comment on his ""Morning Joe'' program on MSNBC",false
+3519,train,"Says state Rep. Jim Keffer, a GOP lieutenant to House Speaker Joe Straus, ""did mail pieces for Democrat Mark Strama to help him defeat"" a Republican.",an open letter,mostly-true
+11434,valid,"Edwards says if Congress won't pass universal health care, he'll tell Congress: ""I'm going to use my power as president to take your health care away from you.""",a TV ad,pants-fire
+1325,train,"Says Austins treated wastewater, put into the Colorado River, is of higher quality than water the city takes from the lake for public use.",an Austin City Council meeting.,half-true
+223,train,"Milwaukee County taxpayers paid $370,000 to settle a lawsuit over a decision by Sheriff David A. Clarke Jr. to use untrained corrections officers rather than deputies to patrol the lakefront.",an interview,barely-true
+2647,train,Commerce Secretary nominee John Bryson appears to endorse world government.,a web news story,false
+11953,test,"Says hes arrested more criminals, including thousands of child predators and sex offenders, than any previous Texas attorney general.",a campaign television ad,mostly-true
+8520,train,Florida Statutes require (Attorney General Bill) McCollum to consult with members of Florida's Congressional delegation before filing a lawsuit against the health care reform law.,a news release,mostly-true
+10566,valid,Says James Langevin voted to spend $3 billion for a jet engine no one wants.,a news release,barely-true
+2869,train,"Right now, in every major poll, national poll and statewide poll done in the last month, six weeks, we are defeating Trump, often by big numbersand always at a larger margin than Secretary Clinton is.",an interview on NBC's 'Meet the Press',mostly-true
+5711,train,The Consumer Financial Protection Bureau has no congressional oversight.,a Republican presidential debate in Milwaukee,half-true
+324,train,74 percent of Republicans support the Affordable Care Act.,"a roundtable discussion on CNN's ""State of the Union""",false
+3242,train,President Obama has never received a paycheck from a profitmaking business in his entire life.,a discussion on MSNBC,false
+12120,test,Says Donald Trumpsfoundation took money other people gave to his charity and then bought a six-foot-tall painting of himself.,a speech in Philadelphia,true
+3008,train,Women make 77 cents for every dollar a man earns.,the State of the Union address,mostly-true
+5363,train,The Tax Foundation figures Rhode Island as the 10th highest state for state and local tax burden per capita in the country. Were the 6th worst in the country for the business tax index. Were the 3rd highest per capita in the country for all taxes.,a speech,barely-true
+10284,valid,Tim Kaine urged$500 billion in Medicare cuts.,a TV ad. ,false
+3599,train,"Since Obamacare became law, most of our new jobs have been part-time jobs.",a speech.,false
+2038,train,"Last year it was discovered that Rhode Islands public employees ranked 4th in average pay, while the private sector ranked 23rd.",a web commentary,half-true
+1692,train,There are 49 different federal job training programs that report to eight agencies.,"remarks in St. Petersburg, Fla.",mostly-true
+11107,valid,Says President Dwight Eisenhower moved 1.5 million illegal immigrants out of this country.,the Fox Business Network debate,half-true
+3932,train,"Virginia is headed towards another surplus this year, unlike most states.",a TV interview.,mostly-true
+905,train,"Over the last few years, weve put more people back to work than all the other advanced economies combined.",a press conference after the G20 summit,half-true
+12014,test,Halliburton gave Dick Cheney a $34 million payout when he left the company to join the presidential ticket.,an interview with Jay Leno on NBC's The Tonight Show,true
+1930,train,"A government panel that didn't include cancer specialists says women shouldn't receive mammograms until age 50...If government takes over health care, recommendations like these could become the law for all kinds of diseases.",a TV ad,pants-fire
+12456,test,"Says that during his eight years as Florida governor, we created 1.3 million net new jobs -- more jobs created than Texas.",a speech at Gov. Rick Scott's economic summit in Orlando,mostly-true
+11703,test,"John McCain ""has not led on nonproliferation issues when he had the chance in the Senate.""",a statement by campaign spokesman Bill Burton,true
+4299,train,"A far different picture from the prior eight years, which saw 115 increases in taxes and fees.",a speech,true
+11657,test,Says state Sen. Sheila Harsdorf wants to eliminate Medicare as we know it.,a campaign flier,pants-fire
+122,train,Says 88 Texas constables have died in the line of duty.,a press statement.,true
+2779,train,"If we got solar energy from an area of the Southwestern desert 100 miles on a side, that would be enough, in and of itself, to provide 100 percent of all the electricity needs for the United States of America in a full year.",a Senate committee hearing,true
+8475,train,A company with 20 employees could go out of business because of health care law requirements to buy insurance.,a TV interview with Greta Van Susteren,pants-fire
+1337,train,"The House did vote against engagement in Kosovo, and Bill Clinton kept fighting anyway. And, then, ultimately, a vote did pass.","an interview on ""Fox News Sunday""",mostly-true
+1460,train,"Florida ranks ""45th out of 50 states'' for its regulatory climate for business.",a speech to young Republicans in Tampa,half-true
+7988,train,One of the reasons that Social Security is in so much trouble is that the only funding stream comes from people who get a wage. The people who get wages is declining dramatically.,a Republican presidential debate,barely-true
+7794,train,"Eighty-five percent of every dollar donated to the Clinton Foundation ended up either with the Clintons or with their staff to pay for travel, salaries, and benefits. Fifteen cents of every dollar actually went to some charitable beneficiary.",a monologue on his radio show,barely-true
+3749,train,John Cornyn backed his pal David Dewhurst for the U.S. Senate over Ted Cruz.,a Stockman campaign web page,false
+8530,train,Three of five detainees swapped (for Bowe Bergdahl) are now ISIS leaders.,Internet posts,pants-fire
+1972,train,Florida is the first state requiring drug testing to receive welfare!,a chain e-mail,false
+11470,valid,Kathryn Starkey aided and abetted the continued taxation on residents properties over 70 percent of the time by seconding motions and voting to keep the millage rate the same.,in a mailer,half-true
+10800,valid,"In fact, theres more state funding for education today than any other time.",a response to a public school teacher,true
+7968,train,Rick Perry accepted more stimulus funds than any other governor except the governors of California and New York.,a speech to the Texas Democratic Party convention in Corpus Christi,mostly-true
+9321,train,Wild Bill Hickok had his first duel in the town square here. And the family legend is that he is a distant cousin of mine.,"Springfield, Mo.",true
+6444,train,"If you already have health insurance through your job, or Medicare, or Medicaid, or the VA, nothing in this plan will require you or your employer to change the coverage or the doctor you have.",a speech to Congress,true
+2906,train,"Since 1965, the United States has spent untold trillions yet the poverty rate hasnt budged.","a comment on Fox News' ""The O'Reilly Factor""",false
+2694,train,People for the Ethical Treatment of Animals estimates 200 animals will be spared annually as the result of former President Bill Clinton adopting a vegan diet.,an article,half-true
+2072,train,"Thanks in part to our all-of-the-above strategy for American energy, the United States generates more natural gas than anybody.",a Saturday radio address,mostly-true
+12231,test,Georgias HOPE scholarship is still the richest scholarship program in America.,a newspaper article,half-true
+4534,train,"In most Muslim countries, We cant have a church. Were not able to build synagogues. Its forbidden.","ABC's ""This Week""",false
+11620,test,"Before World War II, very few people actually had health insurance.",an interview,true
+4371,train,Says there are more federal dollars in Gov. John Kasichs budget plan than in the previous state budget.,a speech in the Ohio House of Representatives,barely-true
+11024,valid,The American murder rate is 50 times that of any other developed nation.,an episode of 'The Trews',false
+6662,train,"Rep. Paul Hodes, D-N.H., voted for the pork-filled stimulus bill -- $1.9 million to study ants in Africa, $39 million for office upgrades for politicians.",a campaign ad,barely-true
+78,train,Says Charlie Crist supports cuts to the Medicare Advantage program.,a Facebook post,false
+4668,train,"Says there are ample means to tell when someone is a Christian in the Middle East ... by name, by where theyre born, their birth certificates.",a radio interview in New Hampshire,half-true
+777,train,"In Cranston, it costs $5,000 to $6,000 to send out community notifications on just one Level 3 sex offender.",a House Finance Committee hearing,false
+1064,train,The NRA supported background checks...,a campaign website,mostly-true
+5953,train,Says Oregon is one of only three states that allow the use of gillnets on inland waters.,campaign press statement,false
+4383,train,"The American people say, dont touch Social Security, dont touch Medicare, dont cut defense. Thats 84 percent of the federal budget.",This Week with Christiane Amanpour,mostly-true
+9379,train,"Over the last six months, President Barack Obama has golfed 10 times and held 106 fundraisers, but his jobs council has never met.",a web video,true
+2348,train,"When I was born, defense spending was 60 percent of the budget. Its now 17 percent.","a Republican presidential debate in Mesa, Ariz.",mostly-true
+9361,train,"Gov. (Pat) McCrory took $500,000 directly out of the disaster relief fund. And you know what its for? House Bill 2.",a debate,half-true
+2412,train,"Planned Parenthood is the only health care that a significant number of women get. About 30 percent of women, thats their health care.",a Senate floor speech,pants-fire
+11574,test,Says Charlie Crist voted against raising the minimum wage.,a campaign commercial,half-true
+12090,test,He was a member of the Iraq Study Group and was either fired or quit from a very important commission that was trying to figure out the way forward in Iraq.,Interview on Fox News,true
+3552,train,Says Gov. Scott Walker said no to equal pay for equal work for women.,a TV ad,false
+6032,train,"Says Connie Mack takes two homestead exemptions, directly contrary to Floridas Constitution.","in a debate in Davie, Fla.",barely-true

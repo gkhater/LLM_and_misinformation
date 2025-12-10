@@ -1,4 +1,4 @@
-input_claims_csv: "data/demo_claims_verified.csv"
+input_claims_csv: "data/demo_claims_covered_400.csv"
 input_split: null
 max_rows: null
 
@@ -21,10 +21,10 @@ nli:
   refine_model_name: null
   refine_threshold: 0.55
   refine_top_k: 0
-  entail_threshold: 0.42
+  entail_threshold: 0.35
   contradict_threshold: 0.60
   batch_size: 32
-  margin: 0.07
+  margin: 0.05
 
 metrics:
   fact_precision:
@@ -34,7 +34,7 @@ metrics:
   label_consistency:
     enabled: true
     true_labels: ["true", "mostly-true", "mostly true", "half-true", "half true"]
-    false_labels: ["false", "pants-fire", "pants on fire", "pants-fire!", "pants-fire", "pants on-fire", "barely-true", "barely true"]
+    false_labels: ["false", "pants-fire", "pants on fire", "pants-fire!", "pants on-fire", "barely-true", "barely true"]
     mixed_labels: ["half-true", "half true", "barely-true", "barely true"]
 
 gating:
@@ -44,7 +44,7 @@ gating:
   disallow_fact_precision_on_context_only: false
 
 eval:
-  store_evidence: true
+  store_evidence: false
   max_evidence_to_store: 2
 
-output_jsonl: "outputs/demo_verified_eval.jsonl"
+output_jsonl: "outputs/demo_853_eval_looseent_400.jsonl"

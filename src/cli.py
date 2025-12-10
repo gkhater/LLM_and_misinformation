@@ -1,6 +1,11 @@
 import os
 os.environ.setdefault("TRANSFORMERS_NO_TF", "1")
 os.environ.setdefault("USE_TF", "0")
+# Disable proxy leakage by default; GROQ/OpenAI clients often honor env proxies.
+for _var in ["HTTP_PROXY", "http_proxy", "HTTPS_PROXY", "https_proxy", "ALL_PROXY", "all_proxy"]:
+    if _var in os.environ:
+        os.environ.pop(_var, None)
+os.environ.setdefault("NO_PROXY", "api.groq.com,groq.com,localhost,127.0.0.1")
 
 import argparse
 import yaml
@@ -86,17 +91,28 @@ def main():
     parser.add_argument("--max-rows", type=int, default=None, help="Optional cap for quick smoke tests.")
     parser.add_argument("--smoke", action="store_true", help="Smoke mode for evaluation: health checks only.")
     parser.add_argument("--debug-ids", default=None, help="Comma-separated claim ids to inspect during evaluation.")
+    parser.add_argument("--claims-csv", default=None, help="Override dataset.csv_path for generation/evaluation.")
+    parser.add_argument("--input-jsonl", default=None, help="Override input_jsonl for evaluation.")
     args = parser.parse_args()
 
     if args.mode == "evaluation":
         if not args.eval_config:
             parser.error("--eval-config is required when mode=evaluation")
         debug_ids = [int(x) for x in args.debug_ids.split(",")] if args.debug_ids else None
-        out_path = run_evaluation(args.eval_config, max_rows=args.max_rows, smoke=args.smoke, debug_ids=debug_ids)
+        out_path = run_evaluation(
+            args.eval_config,
+            max_rows=args.max_rows,
+            smoke=args.smoke,
+            debug_ids=debug_ids,
+            input_claims_csv=args.claims_csv,
+            input_jsonl=args.input_jsonl,
+        )
         print(f"Evaluation saved to: {out_path}")
         return
 
     config = load_config(args.base_config, args.model_config)
+    if args.claims_csv:
+        config.setdefault("dataset", {})["csv_path"] = args.claims_csv
 
     classifier = build_classifier(config)
 
