@@ -222,13 +222,19 @@ def _post_filter_hits(
     numeric_time_gate: bool,
     final_k: int,
     fallback_delta: float = 0.05,
-) -> Tuple[List[tuple], bool]:
+) -> Tuple[List[tuple], bool, dict]:
     if not hits:
-        return [], False
+        return [], False, {"entity_tokens": [], "entity_veto_kept": 0, "entity_veto_fallback": False}
     keywords = _extract_keywords(claim_text)
     numeric_tokens = {"year", "years", "month", "months", "week", "weeks", "day", "days", "double", "increase", "decrease", "more", "less", "percent", "percentage"}
     claim_has_number = any(ch.isdigit() for ch in claim_text)
     claim_has_numeric_token = claim_has_number or any(tok in _tokenize(claim_text) for tok in numeric_tokens)
+    ent_tokens = []
+    for tok in re.findall(r"[A-Z][A-Za-z0-9]+", claim_text):
+        if len(tok) >= 3:
+            ent_tokens.append(tok.lower())
+        if len(ent_tokens) >= 8:
+            break
     scored = []
     for h in hits:
         doc_id, text = h
@@ -238,16 +244,37 @@ def _post_filter_hits(
             # Require passage to contain at least one digit or numeric-ish token.
             if not any(ch.isdigit() for ch in text) and not (set(_tokenize(text)) & numeric_tokens):
                 continue
+        if ent_tokens:
+            if not (set(_tokenize(text)) & set(ent_tokens)):
+                continue
         s = _overlap_score(claim_text, text)
         if s >= min_overlap:
             scored.append((s, h))
     scored.sort(key=lambda x: x[0], reverse=True)
     filtered = [h for _, h in scored[:max_hits]] if scored else []
+    veto_fallback = False
     if len(filtered) >= final_k or not filtered:
-        return filtered, False
+        return filtered, False, {"entity_tokens": ent_tokens, "entity_veto_kept": len(filtered), "entity_veto_fallback": False}
+    if len(filtered) < final_k and not filtered and ent_tokens:
+        veto_fallback = True
+        scored_no_ent = []
+        for h in hits:
+            doc_id, text = h
+            if require_keyword and keywords and not (set(_tokenize(text)) & keywords):
+                continue
+            if numeric_time_gate and claim_has_numeric_token:
+                if not any(ch.isdigit() for ch in text) and not (set(_tokenize(text)) & numeric_tokens):
+                    continue
+            s = _overlap_score(claim_text, text)
+            if s >= min_overlap:
+                scored_no_ent.append((s, h))
+        scored_no_ent.sort(key=lambda x: x[0], reverse=True)
+        filtered = [h for _, h in scored_no_ent[:max_hits]] if scored_no_ent else []
+        return filtered, True, {"entity_tokens": ent_tokens, "entity_veto_kept": len(filtered), "entity_veto_fallback": True}
     # Fallback: relax overlap slightly to avoid starving reranker.
     relaxed = [h for score, h in scored if score >= max(0.0, min_overlap - fallback_delta)]
-    return relaxed[:max_hits], True
+    relaxed = relaxed[:max_hits]
+    return relaxed, True, {"entity_tokens": ent_tokens, "entity_veto_kept": len(relaxed), "entity_veto_fallback": True or veto_fallback}
 
 
 class Reranker:
@@ -493,7 +520,7 @@ def build_nli_cache(
                 seen_ids_raw.add(pid)
                 deduped_raw.append((pid, ptxt))
             evidence = deduped_raw
-            evidence, fallback_used = _post_filter_hits(
+            evidence, fallback_used, entity_meta = _post_filter_hits(
                 claim_text,
                 evidence,
                 min_overlap=min_overlap,
@@ -504,6 +531,9 @@ def build_nli_cache(
             )
             if claim_id in debug_ids:
                 print(f"[DEBUG] cache build claim {claim_id} raw_hits={len(evidence)} fallback={fallback_used}")
+                if evidence:
+                    p_id, p_txt = evidence[0]
+                    print(f"[DEBUG] Top premise: {p_id} :: {p_txt[:120]}... | hypothesis: {claim_text[:120]}...")
             if reranker:
                 evidence, rerank_scores = reranker.rerank(claim_id, claim_text, evidence)
             else:
@@ -546,6 +576,9 @@ def build_nli_cache(
                     "top_k_effective": top_k,
                     "max_hits_effective": max_hits,
                     "final_k_effective": min(rerank_cfg.get("final_k", max_hits), len(evidence)),
+                    "entity_tokens": entity_meta.get("entity_tokens", []),
+                    "entity_veto_kept": entity_meta.get("entity_veto_kept"),
+                    "entity_veto_fallback": entity_meta.get("entity_veto_fallback"),
                 }
                 cache_file.write(json.dumps(entry, ensure_ascii=False) + "\n")
                 existing[claim_id] = entry
@@ -601,6 +634,9 @@ def build_nli_cache(
                 "top_k_effective": top_k,
                 "max_hits_effective": max_hits,
                 "final_k_effective": min(rerank_cfg.get("final_k", max_hits), len(ev_entries)),
+                "entity_tokens": entity_meta.get("entity_tokens", []),
+                "entity_veto_kept": entity_meta.get("entity_veto_kept"),
+                "entity_veto_fallback": entity_meta.get("entity_veto_fallback"),
             }
             cache_file.write(json.dumps(entry, ensure_ascii=False) + "\n")
             existing[claim_id] = entry

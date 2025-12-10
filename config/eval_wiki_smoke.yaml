@@ -7,13 +7,13 @@ retrieval:
   corpus_path: "data/wiki_seeded_passages.tsv"
   top_k: 50
   post_filter:
-    min_overlap: 0.0
+    min_overlap: 0.15
     max_hits: 20
-    require_keyword: false
-    numeric_time_gate: false
+    require_keyword: true
+    numeric_time_gate: true
   rerank:
     enabled: false
-    final_k: 5
+    final_k: 3
 
 nli:
   cache_path: "outputs/wiki_smoke_nli_cache_v3.jsonl"
@@ -21,10 +21,10 @@ nli:
   refine_model_name: null
   refine_threshold: 0.55
   refine_top_k: 0
-  entail_threshold: 0.35
-  contradict_threshold: 0.35
+  entail_threshold: 0.45
+  contradict_threshold: 0.45
   batch_size: 32
-  margin: 0.07
+  margin: 0.10
 
 metrics:
   fact_precision:
