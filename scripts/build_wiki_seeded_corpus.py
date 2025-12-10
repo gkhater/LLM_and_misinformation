@@ -166,9 +166,20 @@ def _http_request(session: requests.Session, params: dict, timeout: float, retri
     raise RuntimeError("HTTP request failed")
 
 
-def wiki_search(session: requests.Session, query: str, cache_dir: Path, sleep: float, timeout: float, retries: int, backoff: float, search_limit: int) -> List[str]:
+def wiki_search(
+    session: requests.Session,
+    query: str,
+    cache_dir: Path,
+    sleep: float,
+    timeout: float,
+    retries: int,
+    backoff: float,
+    search_limit: int,
+    bypass_cache: bool = False,
+    cache_buster: bool = False,
+) -> List[str]:
     cache_file = cache_dir / f"search_{sha1_bytes(query.encode('utf-8'))}.json"
-    if cache_file.exists():
+    if not bypass_cache and cache_file.exists():
         try:
             titles = json.loads(cache_file.read_text(encoding="utf-8"))
             if titles:
@@ -182,10 +193,15 @@ def wiki_search(session: requests.Session, query: str, cache_dir: Path, sleep: f
         "srlimit": search_limit,
         "format": "json",
     }
+    if cache_buster:
+        params["cb"] = str(int(time.time()))
     resp = _http_request(session, params, timeout=timeout, retries=retries, backoff=backoff)
     data = resp.json()
     titles = [hit["title"] for hit in data.get("query", {}).get("search", [])][:search_limit]
-    cache_file.write_text(json.dumps(titles, ensure_ascii=False), encoding="utf-8")
+    try:
+        cache_file.write_text(json.dumps(titles, ensure_ascii=False), encoding="utf-8")
+    except Exception:
+        pass
     time.sleep(sleep)
     return titles
 
@@ -255,12 +271,17 @@ def build_corpus(
     search_limit: int,
     max_pages_per_seed: int,
     overwrite: bool = False,
+    time_budget_sec: Optional[float] = None,
 ) -> Tuple[int, Set[str], Dict[str, List[str]]]:
     os.makedirs(cache_dir, exist_ok=True)
     os.makedirs(out_path.parent, exist_ok=True)
 
     if overwrite and out_path.exists():
-        out_path.unlink()
+        try:
+            out_path.unlink()
+        except PermissionError:
+            # On Windows a lingering handle can block unlink; truncate instead.
+            out_path.write_text("", encoding="utf-8")
 
     seen = set()
     if out_path.exists() and resume:
@@ -275,57 +296,85 @@ def build_corpus(
     titles_by_claim: Dict[str, List[str]] = {}
     session = requests.Session()
     session.headers.update({"User-Agent": user_agent})
+    start_time = time.time()
+    pages_fetched = 0
+    flush_every = 20
+    fsync_every = 200
     with out_path.open("a", encoding="utf-8", newline="") as f_out:
         writer = csv.writer(f_out, delimiter="\t")
-        for claim_row in claims:
-            claim_text = claim_row.get("claim", "") or ""
-            seeds = list(extract_seeds(claim_text))[:max_seeds_per_claim]
-            cid = str(claim_row.get("id", "")) or sha1_bytes(claim_text.encode("utf-8"))
-            titles_by_claim[cid] = []
-            for seed in seeds:
-                try:
-                    titles = wiki_search(
-                        session,
-                        seed,
-                        cache_dir,
-                        sleep,
-                        timeout=timeout,
-                        retries=retries,
-                        backoff=backoff,
-                        search_limit=search_limit,
-                    )
-                except Exception:
-                    continue
-                for title in titles[:max_pages_per_seed]:
-                    if title in titles_seen and resume:
-                        continue
+        for idx_claim, claim_row in enumerate(claims, 1):
+            if time_budget_sec and (time.time() - start_time) > time_budget_sec:
+                print(f"[INFO] Time budget reached after {idx_claim-1} claims; stopping.")
+                break
+            try:
+                claim_text = claim_row.get("claim", "") or ""
+                seeds = list(extract_seeds(claim_text))[:max_seeds_per_claim]
+                cid = str(claim_row.get("id", "")) or sha1_bytes(claim_text.encode("utf-8"))
+                titles_by_claim[cid] = []
+                passages_before_claim = total_written
+                for seed in seeds:
                     try:
-                        extract = wiki_extract(
+                        titles = wiki_search(
                             session,
-                            title,
+                            seed,
                             cache_dir,
                             sleep,
                             timeout=timeout,
                             retries=retries,
                             backoff=backoff,
+                            search_limit=search_limit,
                         )
-                    except Exception:
+                    except Exception as exc:
+                        print(f"[WARN] search failed seed='{seed}' claim_id={cid}: {exc}")
                         continue
-                    titles_seen.add(title)
-                    titles_by_claim[cid].append(title)
-                    if not extract:
-                        continue
-                    paragraphs = [p.strip() for p in extract.split("\n") if p.strip()]
-                    paragraphs = [p for p in paragraphs if paragraph_gate(p, seeds)]
-                    for p in paragraphs:
-                        for chunk in chunk_text(p, chunk_size, overlap):
-                            text = f"{title}\n{chunk}"
-                            key = (title, sha1_bytes(chunk.encode("utf-8")))
-                            if key in seen:
-                                continue
-                            seen.add(key)
-                            writer.writerow([f"{title}", title, text])
-                            total_written += 1
+                    for title in titles[:max_pages_per_seed]:
+                        if title in titles_seen and resume:
+                            continue
+                        try:
+                            extract = wiki_extract(
+                                session,
+                                title,
+                                cache_dir,
+                                sleep,
+                                timeout=timeout,
+                                retries=retries,
+                                backoff=backoff,
+                            )
+                        except Exception as exc:
+                            print(f"[WARN] extract failed title='{title}' claim_id={cid}: {exc}")
+                            continue
+                        titles_seen.add(title)
+                        titles_by_claim[cid].append(title)
+                        pages_fetched += 1
+                        if not extract:
+                            continue
+                        paragraphs = [p.strip() for p in extract.split("\n") if p.strip()]
+                        paragraphs = [p for p in paragraphs if paragraph_gate(p, seeds)]
+                        for p in paragraphs:
+                            for chunk in chunk_text(p, chunk_size, overlap):
+                                text = f"{title}\n{chunk}"
+                                key = (title, sha1_bytes(chunk.encode("utf-8")))
+                                if key in seen:
+                                    continue
+                                seen.add(key)
+                                writer.writerow([f"{title}", title, text])
+                                total_written += 1
+                                if total_written % flush_every == 0:
+                                    f_out.flush()
+                                if total_written % fsync_every == 0:
+                                    try:
+                                        os.fsync(f_out.fileno())
+                                    except Exception:
+                                        pass
+                print(
+                    f"[PROGRESS] claim {idx_claim}/{len(claims)} seeds={len(seeds)} "
+                    f"pages_fetched={pages_fetched} passages_written={total_written} last_titles={titles_by_claim[cid][-3:] if titles_by_claim[cid] else []}"
+                )
+                if total_written == passages_before_claim and not seeds:
+                    print(f"[WARN] no seeds for claim_id={cid}")
+            except Exception as exc:
+                print(f"[ERROR] claim index={idx_claim} failed: {exc}")
+                continue
     return total_written, titles_seen, titles_by_claim
 
 
@@ -358,6 +407,7 @@ def main():
     parser.add_argument("--max-pages-per-seed", type=int, default=1, help="Max pages fetched per seed (after search).")
     parser.add_argument("--http-test", action="store_true", help="Run a quick HTTP connectivity test and exit.")
     parser.add_argument("--overwrite", action="store_true", help="Overwrite output TSV instead of appending/resuming.")
+    parser.add_argument("--time-budget-sec", type=float, default=None, help="Optional wall clock budget in seconds.")
     args = parser.parse_args()
 
     claims_path = Path(args.claims)
@@ -382,6 +432,8 @@ def main():
                 retries=args.retries,
                 backoff=args.backoff,
                 search_limit=1,
+                bypass_cache=True,
+                cache_buster=True,
             )
             t1 = time.time()
             extract = ""
@@ -421,6 +473,7 @@ def main():
         search_limit=args.search_limit,
         max_pages_per_seed=args.max_pages_per_seed,
         overwrite=args.overwrite,
+        time_budget_sec=args.time_budget_sec,
     )
 
     corpus_hash = compute_corpus_hash(out_path)

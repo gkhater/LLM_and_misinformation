@@ -1,0 +1,51 @@
+id,claim,context,label,split
+2497,"Susie Lee and her husband own 17 homes across the country and use their private jet to take vacations, and invest in companies like Walmart, Halliburton and GEO Group.",a letter sent to union members,mostly-true,train
+5281,"And while (Ted) Strickland proposed cuts for services for children, he wasted over $250,000 remodeling his bathrooms at the governors mansion.","Flush, a campaign ad ",pants-fire,train
+1003,"The national debt increased $16,000 every secondGeorge Allen served in theU.S. Senate.",a debate.,true,train
+1,When did the decline of coal start? It started when natural gas took off that started to begin in (President George W.) Bushs administration.,a floor speech.,half-true,train
+2,"Hillary Clinton agrees with John McCain ""by voting to give George Bush the benefit of the doubt on Iran.""",Denver,mostly-true,train
+4188,"When George Bush took office, President Clinton, a Democrat, and the Democratic Congress at the time had left an annual budget that was in surplus.",a Senate floor speech,false,train
+4260,Says Bill Clinton and George Bush both say build the Keystone XL.,a television ad,true,train
+7014,"The average American family saw income rise $7,500 under Bill Clinton and decline $2,000 under George Bush.",Denver,half-true,train
+8574,The birther movement was started by Hillary Clinton in 2008. She was all in!,a tweet,false,train
+9147,"Says Bill Clinton gave a speech in 1996 about Iraq having WMDs and said we needed a regime change, even though everyone blamed those things on George W. Bush.",a social media post,barely-true,train
+11366,"Hillary Clinton ""agrees with (John McCain) in embracing the Bush-Cheney policy of not talking to leaders we don't like.""",Denver,barely-true,valid
+2986,The CEO of Goldman Sachs let his employees know that hed be just fine with either Bush or Clinton.,his presidential announcement speech,barely-true,train
+3731,"As a percentage of gross domestic product, we are reducing nondefense discretionary spending to its lowest level since the '60s, lower than it was under Reagan, lower than it was under Clinton, lower than it was under Bush, or both Bushes.",a news conference.,barely-true,train
+6649,"Many of (Hillary Clintons) friends took bigger deductions (than me). Warren Buffett took a massive deduction. (George) Soros, who is a friend of hers, took a massive deduction.",the second presidential debate,barely-true,train
+7296,"Obama spokesman Bill Burton says Clinton gave Bush ""a blank check on a critical foreign policy issue.""",nan,half-true,train
+9140,America never made up for the gutting of the intelligence services that Bill Clinton did. I think those are (former CIA director George) Tenet's words ... that Bill Clinton gutted American intelligence.,a television interview.,half-true,train
+9180,Clinton said great things about NAFTA until she started running for president.,"Lorain, Ohio",true,train
+10684,After the 2001 and 2003 Bush tax rate cuts ... there was more money coming into the treasury.,"a panel discussion on HBO's ""Real Time with Bill Maher""",barely-true,valid
+11482,The Obama administration has put out more of these major rules than the Clinton administration or the Bush administration during comparable times., Conference call with reporters,true,valid
+3492,"Hillary Clinton has already said shes going to wipe out the Second Amendment. She doesnt believe in the First Amendment. And, she also believes in big government, which flies in the face of the 10th Amendment",an interview on MSNBC.,false,train
+6048,"The FBI has reopened its investigation into Hillary Clinton ... and discovered another 650,000 emails.",a campaign rally ,half-true,train
+49,Hillary Clinton in 2005 co-sponsored legislation that would jail flag burners.,Townhall.com ,true,train
+145,"Hillary Clinton has taken over $800,000 from lobbyists.",an online ad.,true,train
+412,"Hillary Clinton ""starts off with 47 percent of the country against her.""","a campaign rally in Alexandria, Va.",true,train
+515,Aphotograph of 21-year-old Hillary Clinton featured a Confederate battle flag in the background.,a tweet,pants-fire,train
+806,In 2009 Hillary Clinton was at the State Department working with U.S. corporations to pressure Haiti not to raise the minimum wage to 61 cents an hour from 24 cents.,"an episode of ""Redacted Tonight""",half-true,train
+893,The approval of the United States was 20 points higher when (Hillary Clinton) left the secretary of states office than when she took it.,a speech at the Democratic National Convention in Philadelphia,half-true,train
+1008,Hillary Clinton and her campaign of 2008 startedthe birther controversy.,a speech,false,train
+1304,"If Sen. Hillary Clinton could enact all of her campaign proposals, taxpayers would be faced with financing more than $777.6-billion in new spending over one White House term.","Web ""Spend-O-Meter""",mostly-true,train
+1343,Says Hillary Clinton had an undercover nurse with her at the Sept. 11 memorial ceremony in New York.,posts,pants-fire,train
+1576,"Says Hillary Clinton told the Des Moines Register on Aug. 8, 2015:I will get the NRA shut down for good if I become president. If we can ban handguns, we will do it.",a blog post and subsequently reposted on Facebook.,pants-fire,train
+1595,Says Hillary Clinton wants to let people just pour in. You could have 650 million people pour in and we do nothing about it. Think of it. Thats what could happen. You triple the size of our country in one week.,a campaign rally in Albuquerque,pants-fire,train
+1973,Says Hillary Clinton wants to raise taxes on African-American owned businesses to as much as nearly 50 percent more than theyre paying now.,"a speech in Manchester, N.H.",false,train
+2159,"Theres a section in the Constitution called the Emoluments Clause that says no one, nor their spouses, can take money from foreigners. (Hillary Clinton) has to be guilty of 70 or 100 counts just on that one charge.","comments on ""Meet the Press""",barely-true,train
+2535,Says Hillary Clinton completely ignored dozens and dozens of requests for more security for the Benghazi consulate.,"comments on CNN's ""State of the Union""",half-true,train
+2546,Says Hillary Clinton was literally present when we pressed the reset button with Russia just a few months after Russia had invaded Georgia.,"an interview on ""Meet the Press""",mostly-true,train
+2598,About 70 percentof Republicans nationwide ...dont think Donald Trump is the right guy to take on Hillary Clinton in November.,"an interview on ""Meet the Press""",mostly-true,train
+2646,Says Hillary Clinton refuses to testify before Congress about the 2012 attack in Benghazi.,a meme on social media,false,train
+2850,"As a senator, Hillary Clinton paid women less than the men in her office.",a speech at the Republican convention,barely-true,train
+2989,"Says Hillary Clinton voted to raise taxes on workers earning as little as $41,500.",a Facebook post,barely-true,train
+3048,"As a senator, Hillary Clinton actually paid female staffers a lot less than men.",a panel discussion ,barely-true,train
+3313,"In head-to-head polls for the general election, I beat Hillary Clinton by more than anybody, by 11 points.",a Republican presidential debate in Detroit,mostly-true,train
+3551,"Says after Hillary Clinton helped a man accused of raping a 12-year-old, shes seen laughing on two separate occasions, laughing at the girl who was raped.",the second 2016 presidential debate,false,train
+3555,Says Hillary Clinton spent 30 days in the hospital in 2012 and appeared wearing glasses that are only for people who have traumatic brain injury.,a panel discussion,false,train
+3698,Says Donald Trump has written 10 checks to Hillary Clinton and four of those checks were not to her Senate campaign. It was to her presidential campaign.,a Republican presidential debate in Detroit,half-true,train
+4073,Says Hillary Clinton wants to increase Syrian refugees to this country by 550 percent.,"an interview on ""Meet the Press""",true,train
+4415,"After a federal inquiry corroborated Hillary Clinton on Whitewater, the next day, there was nothing in the media about it.",comments on CNN's State of the Union,half-true,train
+4974,Says Hillary Clinton gave up 20 percent of Americas uranium supply to Russia.,a speech,barely-true,train
+4980,Says Hillary Clinton called Barack Obama naive for saying he was would sit down and talk to the Iranians during the 2008 Democratic primary.,"an interview on NBC's ""Meet the Press""",half-true,train
+5163,Says Hillary Clinton makes more per hour at a speaking gig than the average CEO does in a year.,a segment on his radio show,barely-true,train

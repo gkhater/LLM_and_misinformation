@@ -823,13 +823,42 @@ def _aggregate_verdict_from_passages(
     contr_t: float,
     margin: float,
 ) -> dict:
+    query_tokens = set(cache_entry.get("query_tokens_all") or cache_entry.get("entity_tokens") or [])
     max_entail = 0.0
     max_contra = 0.0
     ent_count = 0
     con_count = 0
     strong = 0.90
     strong_margin = 0.20
-    for ev in cache_entry.get("evidence", []):
+    def _filter_passages(ev_list, min_match):
+        out = []
+        for ev in ev_list:
+            txt = (ev.get("passage_text") or "").lower()
+            title_lower = txt.split("\n", 1)[0] if "\n" in txt else txt
+            match_count = sum(1 for tok in query_tokens if tok in txt) if query_tokens else 0
+            matched_title = any(tok in title_lower for tok in query_tokens) if query_tokens else False
+            if match_count >= min_match or matched_title:
+                out.append(ev)
+        return out
+
+    evidence_list = cache_entry.get("evidence", []) or []
+    allowed_evidence = _filter_passages(evidence_list, min_match=2) if query_tokens else list(evidence_list)
+    if query_tokens and not allowed_evidence:
+        allowed_evidence = _filter_passages(evidence_list, min_match=1)
+    if query_tokens and not allowed_evidence:
+        return {
+            "verdict": "nei",
+            "max_entail": 0.0,
+            "max_contradict": 0.0,
+            "ent_count": 0,
+            "contradict_count": 0,
+            "rule_fired": "token_match_gate",
+            "evidence_count": 0,
+            "strong_used": False,
+            "max_gap": 0.0,
+        }
+    eval_evidence = allowed_evidence if allowed_evidence else evidence_list
+    for ev in eval_evidence:
         scores = ev.get("nli_claim", {})
         ent = scores.get("entail", 0.0)
         con = scores.get("contradict", 0.0)
@@ -870,7 +899,7 @@ def _aggregate_verdict_from_passages(
         "ent_count": ent_count,
         "contradict_count": con_count,
         "rule_fired": rule,
-        "evidence_count": len(cache_entry.get("evidence", [])),
+        "evidence_count": len(eval_evidence),
         "strong_used": strong_used,
         "max_gap": max_gap,
     }
