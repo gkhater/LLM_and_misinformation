@@ -1062,6 +1062,10 @@ def run_evaluation(
     min_conf = gating_cfg.get("min_confidence_for_fact_precision", 0.0)
     is_context_only = (cfg.get("retrieval", {}).get("backend") or "").lower() in ("context_only", "context")
 
+    eval_cfg = cfg.get("eval", {}) or {}
+    store_evidence = bool(eval_cfg.get("store_evidence", False))
+    max_evidence_to_store = int(eval_cfg.get("max_evidence_to_store", 2))
+
     smoke_mode = bool(cfg.get("smoke_mode", False) or smoke)
     health_checks = {
         "parsed_rows": len(gen_rows),
@@ -1141,6 +1145,62 @@ def run_evaluation(
 
             out_record = dict(row)
             out_record["metrics"] = metrics
+            if store_evidence and cache_entry:
+                evidence_list = cache_entry.get("evidence", []) or []
+                rs = metrics.get("retrieval_stats", {}) or {}
+                q_tokens = set(
+                    rs.get("query_tokens_all")
+                    or rs.get("query_tokens")
+                    or cache_entry.get("query_tokens_all")
+                    or cache_entry.get("entity_tokens")
+                    or []
+                )
+                # Filter evidence with token gate similar to aggregation
+                def _filter_ev(ev_list, min_match):
+                    out = []
+                    for ev in ev_list:
+                        txt_lower = (ev.get("passage_text") or "").lower()
+                        title_lower = txt_lower.split("\n", 1)[0] if "\n" in txt_lower else txt_lower
+                        match_count = sum(1 for tok in q_tokens if tok in txt_lower) if q_tokens else 0
+                        matched_title = any(tok in title_lower for tok in q_tokens) if q_tokens else False
+                        if match_count >= min_match or matched_title or not q_tokens:
+                            out.append((ev, match_count, matched_title))
+                    return out
+
+                ev_filtered = _filter_ev(evidence_list, 2)
+                if not ev_filtered:
+                    ev_filtered = _filter_ev(evidence_list, 1)
+                ev_filtered = [ev for ev, _, _ in ev_filtered] if ev_filtered else evidence_list
+
+                verdict = metrics.get("claim_verification", {}).get("verdict")
+                def score_ev(ev):
+                    sc = ev.get("nli_claim", {})
+                    if verdict == "entail":
+                        return sc.get("entail", 0.0)
+                    if verdict == "contradict":
+                        return sc.get("contradict", 0.0)
+                    return max(sc.get("entail", 0.0), sc.get("contradict", 0.0))
+
+                ev_filtered = sorted(ev_filtered, key=score_ev, reverse=True)
+                stored = []
+                for ev in ev_filtered[:max_evidence_to_store]:
+                    txt = ev.get("passage_text", "")
+                    title = txt.split("\n", 1)[0] if "\n" in txt else ""
+                    nli = ev.get("nli_claim", {}) or {}
+                    stored.append(
+                        {
+                            "passage_id": ev.get("passage_id"),
+                            "title": title,
+                            "text": txt[:400],
+                            "rerank_score": ev.get("rerank_score"),
+                            "nli": {
+                                "entail": nli.get("entail", 0.0),
+                                "contradict": nli.get("contradict", 0.0),
+                                "neutral": nli.get("neutral", 0.0),
+                            },
+                        }
+                    )
+                out_record["evidence"] = stored
             # Finalize retrieval stats with defaults and JSON-safe conversion.
             rs = metrics.get("retrieval_stats", {}) or {}
             rs.setdefault("query_tokens_all", [])

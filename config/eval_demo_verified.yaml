@@ -1,0 +1,50 @@
+input_claims_csv: "data/demo_claims_verified.csv"
+input_split: null
+max_rows: null
+
+retrieval:
+  backend: "local_bm25"
+  corpus_path: "data/wiki_seeded_passages_demo_853.tsv"
+  top_k: 50
+  post_filter:
+    min_overlap: 0.08
+    max_hits: 20
+    require_keyword: true
+    numeric_time_gate: true
+  rerank:
+    enabled: false
+    final_k: 5
+
+nli:
+  cache_path: "outputs/demo_853_nli_cache.jsonl"
+  fast_model_name: "typeform/distilbert-base-uncased-mnli"
+  refine_model_name: null
+  refine_threshold: 0.55
+  refine_top_k: 0
+  entail_threshold: 0.45
+  contradict_threshold: 0.50
+  batch_size: 32
+  margin: 0.10
+
+metrics:
+  fact_precision:
+    enabled: false
+  claim_verification:
+    enabled: true
+  label_consistency:
+    enabled: true
+    true_labels: ["true", "mostly-true", "mostly true", "half-true", "half true"]
+    false_labels: ["false", "pants-fire", "pants on fire", "pants-fire!", "pants-fire", "pants on-fire", "barely-true", "barely true"]
+    mixed_labels: ["half-true", "half true", "barely-true", "barely true"]
+
+gating:
+  require_output_ok_for_fact_precision: true
+  skip_fact_precision_if_label_unknown: true
+  min_confidence_for_fact_precision: 0.3
+  disallow_fact_precision_on_context_only: false
+
+eval:
+  store_evidence: true
+  max_evidence_to_store: 2
+
+output_jsonl: "outputs/demo_verified_eval.jsonl"
