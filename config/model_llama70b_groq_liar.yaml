@@ -11,3 +11,4 @@ dataset:
   context_column: "context"
   split_column: "split"
   split_filter: null
+  label_column: "label"

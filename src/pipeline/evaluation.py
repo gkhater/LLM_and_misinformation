@@ -27,6 +27,19 @@ def _tokenize(text: str) -> list[str]:
 
     return [t.lower() for t in re.findall(r"[A-Za-z0-9']+", text or "")]
 
+def _label_to_polarity(label: Optional[str]) -> Optional[int]:
+    """Map model or dataset labels to polarity: +1 true-ish, -1 false-ish, 0/None otherwise."""
+    if label is None:
+        return None
+    lbl = label.strip().lower()
+    trueish = {"true", "mostly-true", "mostly true", "half-true", "half true", "supports", "support", "accurate", "correct"}
+    falseish = {"false", "pants-fire", "pants on fire", "pants-fire!", "pants on-fire", "barely-true", "barely true", "refutes", "refute", "misleading", "inaccurate", "pants-fire"}
+    if lbl in trueish:
+        return 1
+    if lbl in falseish:
+        return -1
+    return 0
+
 
 def _overlap_score(claim: str, passage: str) -> float:
     c = set(_tokenize(claim))
@@ -1036,6 +1049,17 @@ def run_evaluation(
 
     effective_max_rows = max_rows if max_rows is not None else cfg.get("max_rows")
 
+    label_lookup = {}
+    if input_claims_csv:
+        try:
+            import pandas as pd
+
+            df_labels = pd.read_csv(input_claims_csv)
+            if "id" in df_labels.columns:
+                label_lookup = {int(r["id"]): r.get("label") for _, r in df_labels.iterrows()}
+        except Exception:
+            label_lookup = {}
+
     gen_rows: List[dict] = []
     if "input_jsonl" in cfg and cfg["input_jsonl"]:
         gen_rows = _load_jsonl(cfg["input_jsonl"], max_rows=effective_max_rows)
@@ -1088,6 +1112,9 @@ def run_evaluation(
     with open(out_path, "w", encoding="utf-8") as out_f:
         for row in tqdm(gen_rows, desc="Evaluating"):
             claim_id = int(row["id"])
+            # Backfill label from lookup if missing
+            if not row.get("label") and claim_id in label_lookup:
+                row["label"] = label_lookup[claim_id]
             cache_entry = cache.get(claim_id)
             metrics: Dict[str, dict] = {}
 
@@ -1224,6 +1251,49 @@ def run_evaluation(
             rs.setdefault("topic_veto_reason", None)
             rs.setdefault("query_tokens", rs.get("query_tokens_all", [])[:8])
             metrics["retrieval_stats"] = {k: json_safe(v) for k, v in rs.items()}
+
+            # Model-dependent metrics: model label vs dataset label and verifier agreement.
+            model_output = row.get("model_output") or {}
+            pred_label = model_output.get("label")
+            pred_conf = model_output.get("confidence")
+            pred_pol = _label_to_polarity(pred_label)
+            gold_pol = _label_to_polarity(row.get("label"))
+            verifier_verdict = metrics.get("claim_verification", {}).get("verdict") if metrics.get("claim_verification") else None
+            verifier_pol = None
+            if verifier_verdict == "entail":
+                verifier_pol = 1
+            elif verifier_verdict == "contradict":
+                verifier_pol = -1
+            elif verifier_verdict == "nei":
+                verifier_pol = 0
+
+            # Model vs gold polarity
+            is_binary = pred_pol in (1, -1) and gold_pol in (1, -1)
+            correct_binary = is_binary and (pred_pol == gold_pol)
+            metrics["model_label_metrics"] = {
+                "pred_label": pred_label,
+                "pred_polarity": pred_pol,
+                "pred_confidence": pred_conf,
+                "gold_label": row.get("label"),
+                "gold_polarity": gold_pol,
+                "is_binary": is_binary,
+                "correct_binary": correct_binary,
+            }
+
+            # Model vs verifier agreement
+            agree = None
+            agree_on_covered = None
+            if pred_pol is not None and verifier_pol is not None:
+                agree = pred_pol == verifier_pol
+                if verifier_pol != 0:
+                    agree_on_covered = pred_pol == verifier_pol
+            metrics["model_vs_verifier"] = {
+                "verifier_verdict": verifier_verdict,
+                "verifier_polarity": verifier_pol,
+                "pred_polarity": pred_pol,
+                "agree": agree,
+                "agree_on_covered": agree_on_covered,
+            }
             out_record["timestamp_eval"] = utc_now_iso()
             out_f.write(json.dumps(out_record, ensure_ascii=False) + "\n")
 

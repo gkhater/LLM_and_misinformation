@@ -40,6 +40,12 @@ def summarize(rows: List[dict]) -> dict:
     ev_counts: List[int] = []
     binary_used = 0
     binary_correct = 0
+    ml_binary_used = 0
+    ml_binary_correct = 0
+    agree_used = 0
+    agree_correct = 0
+    agree_cov_used = 0
+    agree_cov_correct = 0
     for row in rows:
         cv = (row.get("metrics") or {}).get("claim_verification", {}) or {}
         verdicts[cv.get("verdict")] += 1
@@ -61,6 +67,23 @@ def summarize(rows: List[dict]) -> dict:
             binary_used += 1
             if label_pol == verdict_pol:
                 binary_correct += 1
+        # Model label metrics
+        ml = (row.get("metrics", {}) or {}).get("model_label_metrics", {}) or {}
+        if ml.get("is_binary"):
+            ml_binary_used += 1
+            if ml.get("correct_binary"):
+                ml_binary_correct += 1
+        mv = (row.get("metrics", {}) or {}).get("model_vs_verifier", {}) or {}
+        pp = ml.get("pred_polarity")
+        vp = mv.get("verifier_polarity")
+        if pp is not None and vp is not None:
+            agree_used += 1
+            if pp == vp:
+                agree_correct += 1
+            if vp != 0:
+                agree_cov_used += 1
+                if pp == vp:
+                    agree_cov_correct += 1
     total = sum(verdicts.values()) or 1
     return {
         "verdicts": verdicts,
@@ -69,6 +92,12 @@ def summarize(rows: List[dict]) -> dict:
         "avg_ev": sum(ev_counts) / len(ev_counts) if ev_counts else 0.0,
         "binary_acc": (binary_correct / binary_used) if binary_used else None,
         "binary_used": binary_used,
+        "model_label_acc": (ml_binary_correct / ml_binary_used) if ml_binary_used else None,
+        "model_label_used": ml_binary_used,
+        "agree_rate": (agree_correct / agree_used) if agree_used else None,
+        "agree_used": agree_used,
+        "agree_cov_rate": (agree_cov_correct / agree_cov_used) if agree_cov_used else None,
+        "agree_cov_used": agree_cov_used,
     }
 
 
@@ -115,6 +144,9 @@ def main():
     lines.append(f"- Coverage (non-NEI): 8B={summary_a['coverage']:.2f}, 70B={summary_b['coverage']:.2f}")
     lines.append(f"- LC acc: 8B={summary_a['lc_acc']}, 70B={summary_b['lc_acc']}")
     lines.append(f"- Binary acc (true-ish vs false-ish only): 8B={summary_a['binary_acc']} (n={summary_a['binary_used']}), 70B={summary_b['binary_acc']} (n={summary_b['binary_used']})")
+    lines.append(f"- Model label acc (binary only): 8B={summary_a['model_label_acc']} (n={summary_a['model_label_used']}), 70B={summary_b['model_label_acc']} (n={summary_b['model_label_used']})")
+    lines.append(f"- Model vs verifier agree: 8B={summary_a['agree_rate']} (n={summary_a['agree_used']}), 70B={summary_b['agree_rate']} (n={summary_b['agree_used']})")
+    lines.append(f"- Model vs verifier agree on covered (verifier != NEI): 8B={summary_a['agree_cov_rate']} (n={summary_a['agree_cov_used']}), 70B={summary_b['agree_cov_rate']} (n={summary_b['agree_cov_used']})")
     lines.append(f"- Verdicts 8B: {fmt_verdicts(summary_a['verdicts'])}")
     lines.append(f"- Verdicts 70B: {fmt_verdicts(summary_b['verdicts'])}")
     lines.append(f"- Avg evidence_count: 8B={summary_a['avg_ev']:.2f}, 70B={summary_b['avg_ev']:.2f}\n")
