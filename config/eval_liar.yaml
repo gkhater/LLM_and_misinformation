@@ -1,21 +1,31 @@
-input_jsonl: "outputs/gen_results_groq_llama-3_1-8b-instant_test_20251209T200912.jsonl"  # path to generation-only output
+input_jsonl: "outputs/gen_results_groq_llama-3_1-8b-instant_test_20251209T211606.jsonl"  # path to generation-only output
 output_jsonl: "outputs/liar_eval.jsonl"
 
 retrieval:
   backend: "local_bm25"
   corpus_path: "data/liar_passages.tsv"
-  top_k: 10
+  top_k: 30
   min_score: -1.0
+  post_filter:
+    min_overlap: 0.25
+    max_hits: 12
+    require_keyword: true
+    numeric_time_gate: true  # if claim mentions numbers/time/comparatives, require passage to have one too
+  rerank:
+    enabled: true
+    model_name: "sentence-transformers/all-MiniLM-L6-v2"
+    final_k: 5
 
 nli:
-  cache_path: "outputs/liar_nli_cache.jsonl"
+  cache_path: "outputs/liar_nli_cache_refine_v2.jsonl"
   fast_model_name: "typeform/distilbert-base-uncased-mnli"
-  refine_model_name: null
-  refine_threshold: 0.30
-  entail_threshold: 0.35
-  contradict_threshold: 0.35
+  refine_model_name: "MoritzLaurer/deberta-v3-base-mnli-fever-anli"
+  refine_threshold: 0.55
+  refine_top_k: 2
+  entail_threshold: 0.33
+  contradict_threshold: 0.33
   batch_size: 32
-  margin: 0.05
+  margin: 0.07
 
 metrics:
   fact_precision:

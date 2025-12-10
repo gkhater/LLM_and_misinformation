@@ -27,6 +27,9 @@
 - LIAR support: added `scripts/build_liar_topics.py` to derive topics from claims; built a larger LIAR-focused BM25 corpus (`data/liar_passages.tsv`, ~3.5k passages) and set it as the default corpus in `config/base.yaml` with claim-level retrieval (top_k=12, min_score=-1, max_evidence=5). Default NLI is now `MoritzLaurer/deberta-v3-base-mnli-fever-anli` (public).
 - New workflow: generation-only phase produces JSONL; offline evaluation reuses shared retrieval + NLI cache with consistent thresholds to avoid re-querying Groq for metric tweaks.
 - Claim-level metrics now use max-entail vs max-contradict with a small margin to cut down noisy “mixed” verdicts; thresholds/margin live in `config/eval_liar.yaml`.
+- Retrieval now post-filters BM25 hits by lexical overlap/keywords and caps max_hits to reduce irrelevant evidence before NLI; fact_precision uses max-entail vs contradict per sentence for stricter rationale scoring.
+- Added embedding reranker (MiniLM) before NLI, enabled refiner (large NLI) after filtering, and a two-hit rule for claim_verification. Latest 20-row eval has claim_verification coverage=0 (all NEI) and label_consistency accuracy=0 on labeled rows, pointing to evidence/corpus weakness rather than plumbing.
+- Relaxed decision policy to avoid over-NEI: thresholds 0.33, margin 0.07, final_k=5, strong single-hit override, and sparse refiner (top 2 pairs with fast≥0.55). New 20-row eval (wiki-ish corpus) yields claim_verification coverage 9/20 and label_consistency accuracy 3/13; corpus remains main bottleneck.
 
 ## Suggested commit message (once scope agreed)
 - “Add modular metrics, BM25 retrieval, and wiki corpus tooling for misinformation benchmarking”
