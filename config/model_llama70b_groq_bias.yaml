@@ -1,0 +1,5 @@
+model:
+  name: "llama-3.3-70b-versatile"  
+  backend: "groq"
+  groq:
+    api_key_env: "GROQ_API_KEY"
